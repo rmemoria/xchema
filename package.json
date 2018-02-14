@@ -1,0 +1,15 @@
+{
+  "name": "schema",
+  "version": "1.0.0",
+  "description": "JS object validator",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha ./test"
+  },
+  "author": "Ricardo Memoria",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^4.17.0",
+    "mocha": "^5.0.0"
+  }
+}
