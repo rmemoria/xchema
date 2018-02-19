@@ -1,5 +1,6 @@
 var utils = require('../commons/utils');
 var PropertyValidator = require('./property-validator');
+var customValidators = require('./custom-validators');
 
 
 /**
@@ -33,6 +34,16 @@ function validateObject(obj, schema) {
 
     // wait for all properties to be validated
     return Promise.all(promises)
+        .then(() => {
+            // if properties were validated, call custom validator in the schema
+            if (errors.length === 0) {
+                const pv = new PropertyValidator(obj, obj, null, schema, schema);
+                const err = customValidators.processCustomValidators(pv);
+                if (err) {
+                    errors.push(err);
+                }
+            }
+        })
         .then(() => {
             // there was any error during validation ?
             if (errors.length === 0) {

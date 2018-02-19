@@ -2,6 +2,7 @@ var utils = require('../commons/utils');
 const typeHandlers = require('./type-handlers');
 const propertyResolver = require('./property-resolver');
 var errorGen = require('./error-generator');
+var customValidators = require('./custom-validators');
 
 
 class PropertyValidator {
@@ -26,7 +27,16 @@ class PropertyValidator {
 
         const handler = typeHandlers.getHandler(this.schema.type);
     
-        return handler.validate(this);    
+        return handler.validate(this)
+            .then(newval => {
+                this.value = newval;
+                // call custom validators
+                const err = customValidators.processCustomValidators(this);
+                if (err) {
+                    return Promise.reject(err);
+                }
+                return newval;
+            });
     }
 }
 

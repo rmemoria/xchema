@@ -179,3 +179,7 @@ module.exports.isString = function(obj) {
 module.exports.isNumber = function(value) {
     return typeof value === 'number';
 };
+
+module.exports.isBoolean = function(value) {
+    return typeof value === 'boolean';
+};

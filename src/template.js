@@ -1,5 +1,5 @@
 
-const schema = {
+module.exports = {
     properties: {
         username: {
             type: 'string',
@@ -33,5 +33,15 @@ const schema = {
             password: true
         }
     },
-    validator: doc => doc.password1 != doc.password2 ? 'Invalid password' : null
+    validator: doc => doc.password1 != doc.password2 ? 'Invalid password' : null,
+    validators: [
+        // simple function returning the message
+        doc => doc.password1 != doc.password2 ? 'Invalid password' : null,
+        // object giving more control
+        {
+            isValid: doc => doc.password1 != doc.password2,
+            message: 'Invalid password',
+            code: 'WRONG_PWD'
+        }
+    ]
 };
