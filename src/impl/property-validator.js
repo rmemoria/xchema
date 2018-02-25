@@ -26,6 +26,10 @@ class PropertyValidator {
         this.value = getDefaultValue(this);
 
         const handler = typeHandlers.getHandler(this.schema.type);
+
+        if (!handler) {
+            throw new Error('Handler not found for type \'' + this.schema.type + '\'');
+        }
     
         return handler.validate(this)
             .then(newval => {

@@ -8,11 +8,14 @@ var customValidators = require('./custom-validators');
  * @param {*} obj
  * @param {*} schema 
  */
-module.exports = (obj, schema) => {
-    return validateObject(obj, schema);
+module.exports = (obj, schema, propertyPrefix) => {
+    if (!schema) {
+        throw new Error('No schema informed');
+    }
+    return validateObject(obj, schema, propertyPrefix ? propertyPrefix : ''); 
 };
 
-function validateObject(obj, schema) {
+function validateObject(obj, schema, propertyPrefix) {
     const errors = [];
     const newObject = {};
 
@@ -23,11 +26,17 @@ function validateObject(obj, schema) {
 
         const value = obj[prop];
 
-        const prom = validateProperty(obj, value, prop, propSchema, schema)
+        const prom = validateProperty(obj, value, propertyPrefix + prop, propSchema, schema)
             .then(newValue => {
                 utils.setValue(newObject, prop, newValue);
             })
-            .catch(err => errors.push(err));
+            .catch(err => {
+                if (Array.isArray(err)) {
+                    err.forEach(it => errors.push(it));
+                } else {
+                    errors.push(err);
+                }
+            });
 
         promises.push(prom);
     }
