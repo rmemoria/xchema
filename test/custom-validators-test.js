@@ -53,7 +53,7 @@ describe('Custom validators', () => {
                 name: {
                     type: 'string',
                     validator: {
-                        isValid: doc => doc.name !== 'vancouver',
+                        isValid: name => name !== 'vancouver',
                         code: 'INVALID_NAME'
                     }
                 }
@@ -86,7 +86,7 @@ describe('Custom validators', () => {
                 }
             },
             validator: {
-                isValid: doc => doc.name != 'vancouver',
+                isValid: (val, doc) => doc.name != 'vancouver',
                 message: errmsg,
                 code: 'INVALID_NAME'
             }
@@ -108,7 +108,7 @@ describe('Custom validators', () => {
                 name: {
                     type: 'string',
                     required: true,
-                    validator: doc => doc.name != 'vancouver'
+                    validator: name => name != 'vancouver'
                 }
             }
         };
@@ -129,7 +129,7 @@ describe('Custom validators', () => {
             properties: {
                 name: {
                     type: 'string',
-                    validator: doc => doc.name.toLowerCase() != 'vancouver' ?
+                    validator: (v, doc) => doc.name.toLowerCase() != 'vancouver' ?
                         null : errmsg
                 }
             }
@@ -145,6 +145,78 @@ describe('Custom validators', () => {
                 assert.equal(err.property, 'name');
                 assert.equal(err.message, errmsg);
                 assert.equal(err.code, null);
+            });
+    });
+
+    it('Register/use/unregister validator', () => {
+        const errMsg = 'Value must be less than 10';
+
+        validator.validators.register('smallNumber', 
+            value => value > 10 ? errMsg : null);
+        
+        const schema = {
+            properties: {
+                value: {
+                    type: 'number',
+                    validator: 'smallNumber'
+                }
+            }
+        };
+
+        return validator.validate({ value: 20 }, schema)
+            .catch(errs => {
+                assert(errs);
+                assert.equal(errs.length, 1);
+                const err = errs[0];
+                assert.equal(err.property, 'value');
+                assert.equal(err.message, errMsg);
+
+                // check if get returns the validator
+                assert(validator.validators.get('smallNumber'));
+
+                // unregister and test if it was removed
+                validator.validators.unregister('smallNumber');
+                assert(!validator.validators.get('smallNumber'));
+
+                // test validation of the schema without the validator
+                // it must generate an unexpected error
+                return validator.validate({ value: 20 }, schema);
+            })
+            .catch(err => {
+                assert(err instanceof Error);
+            });
+    });
+
+    it('Register complex validator', () => {
+        validator.validators.register('smallNumber', {
+            isValid: value => value <= 10,
+            code: 'NOT_SMALL_NUMBER'
+        });
+
+        const schema = {
+            properties: {
+                value: {
+                    type: 'number',
+                    validator: 'smallNumber'
+                }
+            }
+        };
+
+        return validator.validate({ value: 20 }, schema)
+            .catch(errs => {
+                assert(errs);
+                assert.equal(errs.length, 1);
+                const err = errs[0];
+                assert.equal(err.property, 'value');
+                assert(!err.message);
+                assert.equal(err.code, 'NOT_SMALL_NUMBER');
+
+                // just check if error will not be registered in valid values
+                return validator.validate({ value: 10 }, schema);
+            })
+            .then(res => {
+                assert(res);
+                assert.equal(res.value, 10);
             });
     });
 });

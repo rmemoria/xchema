@@ -1,6 +1,13 @@
 const validator = require('./impl/schema-validator');
+const customValidator = require('./impl/custom-validators');
 
 exports.validate = (obj, schema) => validator(obj, schema);
+
+exports.validators = {
+    register: (name, handler) => customValidator.registerValidator(name, handler),
+    unregister: name => customValidator.unregisterValidator(name),
+    get: name => customValidator.findValidator(name)
+};
 
 /**
  * Initialize default handlers

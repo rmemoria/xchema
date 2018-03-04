@@ -1,20 +1,45 @@
 const utils = require('../commons/utils');
 const errorGen = require('./error-generator');
+const propertyResolver = require('./property-resolver');
+
+const validators = {};
 
 /**
  * Custom validators are functions defined by the user inside a schema in property or 
  * object level with the objective of validate it.
  */
 module.exports = {
-    processCustomValidators: processCustomValidators
+    processCustomValidators: processCustomValidators,
+    registerValidator: registerValidator,
+    findValidator: findValidator,
+    unregisterValidator: unregisterValidator
 };
+
+/**
+ * Register a new custom validator to be used throughout the implementation
+ * @param {string} name 
+ * @param {function} handler 
+ */
+function registerValidator(name, handler) {
+    validators[name] = handler;
+}
+
+function findValidator(name) {
+    return validators[name];
+}
+
+function unregisterValidator(name) {
+    const validator = validators[name];
+    delete validators[name];
+    return validator;
+}
 
 function processCustomValidators(propValidator) {
     const schema = propValidator.schema;
 
     // there is a single validator ?
     if (schema.validator) {
-        const err = processValidator(propValidator, schema.validator);
+        const err = callValidator(propValidator, schema.validator);
         if (err) {
             return err;
         }
@@ -24,7 +49,7 @@ function processCustomValidators(propValidator) {
     if (schema.validators) {
         // iterate by all validators until an invalid is found
         for (const i in schema.validators) {
-            const err = processValidator(propValidator, schema.validators[i]);
+            const err = callValidator(propValidator, schema.validators[i]);
             if (err) {
                 return err;
             }
@@ -33,7 +58,15 @@ function processCustomValidators(propValidator) {
     return null;
 }
 
-function processValidator(propValidator, validator) {
+function callValidator(propValidator, validator) {
+    if (utils.isString(validator)) {
+        const v = validators[validator];
+        if (!v) {
+            throw new Error('Validator \'' + validator + '\' not found');
+        }
+        validator = v;
+    }
+
     // validator is a simple function ?
     if (utils.isFunction(validator)) {
         return handleFunctionValidator(propValidator, validator);
@@ -43,7 +76,8 @@ function processValidator(propValidator, validator) {
 }
 
 function handleFunctionValidator(propValidator, validator) {
-    const ret = validator(propValidator.doc);
+    const ret = propertyResolver(validator, propValidator);
+
     if (utils.isEmpty(ret)) {
         return null;
     }
@@ -62,7 +96,8 @@ function handleValidator(propValidator, validator) {
     }
 
     // call validator and return true? So it is valid
-    if (func(propValidator.doc)) {
+    const res = propertyResolver(func, propValidator);
+    if (res) {
         return null;
     }
 

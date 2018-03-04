@@ -26,11 +26,21 @@ function validateObject(obj, schema, propertyPrefix) {
 
         const value = obj[prop];
 
-        const prom = validateProperty(obj, value, propertyPrefix + prop, propSchema, schema)
+        const propDeclared = obj.hasOwnProperty(prop);
+
+        const prom = validateProperty(obj, value, propertyPrefix + prop, propSchema, schema, !propDeclared)
             .then(newValue => {
-                utils.setValue(newObject, prop, newValue);
+                // check if it is a value that must be implemented
+                if (newValue !== PropertyValidator.NotAValue) {
+                    utils.setValue(newObject, prop, newValue);
+                }
             })
             .catch(err => {
+                // check if it is an unexpected error
+                if (err instanceof Error) {
+                    return Promise.reject(err);
+                }
+            
                 if (Array.isArray(err)) {
                     err.forEach(it => errors.push(it));
                 } else {
@@ -69,8 +79,8 @@ function validateObject(obj, schema, propertyPrefix) {
  * @param {*} prop the property to be validated
  * @param {*} propSchema the schema of the property being validated
  */
-function validateProperty(obj, value, prop, propSchema, schema) {
-    const pr = new PropertyValidator(obj, value, prop, propSchema, schema);
+function validateProperty(obj, value, prop, propSchema, schema, propNotDeclared) {
+    const pr = new PropertyValidator(obj, value, prop, propSchema, schema, propNotDeclared);
 
     return pr.validate();
 }

@@ -4,6 +4,9 @@ var errorGen = require('../error-generator');
 
 module.exports.validate = (propValidator) => {
     var val = propValidator.value;
+    if (utils.isEmpty(val)) {
+        return Promise.resolve(null);
+    }
 
     if (!utils.isString(val)) {
         return Promise.reject(errorGen.createInvalidTypeMsg(propValidator.property));

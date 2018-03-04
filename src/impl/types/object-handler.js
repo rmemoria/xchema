@@ -6,6 +6,10 @@ const validator = require('../schema-validator');
 module.exports.validate = (propValidator) => {
     const value = propValidator.value;
 
+    if (utils.isEmpty(value)) {
+        return Promise.resolve(null);
+    }
+
     if (!utils.isObject(value)) {
         return Promise.reject(errorGen.createInvalidTypeMsg(propValidator.property));
     }

@@ -7,23 +7,29 @@ var customValidators = require('./custom-validators');
 
 class PropertyValidator {
 
-    constructor(doc, value, property, schema, docSchema) {
+    constructor(doc, value, property, schema, docSchema, propertyNotDeclared) {
         this.doc = doc;
         this.value = value;
         this.property = property;
         this.schema = schema;
         this.docSchema = docSchema;
+        this.propertyNotDeclared = !!propertyNotDeclared;
     }
 
     /**
      * Validate the property
      */
     validate() {
-        if (!checkNotNull(this.value, this.schema)) {
+        if (!checkNotNull(this)) {
             return Promise.reject(errorGen.createValueRequiredMsg(this.property));
         }
-    
+
         this.value = getDefaultValue(this);
+
+        // if there is no value and the property was not declared, so there is nothing to validate
+        if (utils.isEmpty(this.value) && this.propertyNotDeclared) {
+            return Promise.resolve(PropertyValidator.NotAValue);
+        }
 
         const handler = typeHandlers.getHandler(this.schema.type);
 
@@ -54,7 +60,7 @@ function getDefaultValue(propValidator) {
     }
 
     if (propValidator.schema.defaultValue) {
-        return propertyResolver(propValidator.doc, propValidator.schema.defaultValue);
+        return propertyResolver(propValidator.schema.defaultValue, propValidator);
     }
 
     return propValidator.value;
@@ -65,13 +71,12 @@ function getDefaultValue(propValidator) {
  * @param {*} value 
  * @param {*} propSchema 
  */
-function checkNotNull(value, propSchema) {
-    if (propSchema.required && utils.isEmpty(value)) {
-        return false;
-    } else {
-        return true;
-    }
+function checkNotNull(propValidator) {
+    const res = propertyResolver(propValidator.schema.required, propValidator) === true &&
+        utils.isEmpty(propValidator.value);
+    return !res;
 }
 
+PropertyValidator.NotAValue = {};
 
 module.exports = PropertyValidator;

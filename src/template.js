@@ -10,7 +10,7 @@ module.exports = {
             type: 'string',
             email: true,
             required: true,
-            validate: doc => doc.email.endsWith('gmail.com') ?
+            validator: doc => doc.email.endsWith('gmail.com') ?
                 null : 'Must be a gmail account'
         },
         birthDate: {
@@ -43,5 +43,11 @@ module.exports = {
             message: 'Invalid password',
             code: 'WRONG_PWD'
         }
-    ]
+    ],
+    // if property is not declared or is with an unassigned value, 
+    // its default value will be null
+    defaultAsNull: true,
+    // if true, all string values will have its whitespaces removed
+    // from both ends
+    autoTrim: true
 };
