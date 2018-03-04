@@ -219,4 +219,77 @@ describe('Custom validators', () => {
                 assert.equal(res.value, 10);
             });
     });
+
+    it('Multiple validators', () => {
+        const schema = {
+            properties: {
+                value: {
+                    type: 'number',
+                    validators: [
+                        val => val >= 20 ? 'Must be lower than 20' : null,
+                        val => val >= 10 ? 'Must be lower than 10' : null,
+                        val => val >= 8 ? 'Must be lower than 8' : null
+                    ]
+                }
+            }
+        };
+
+        // caught in the 1st validator
+        return validator.validate({ value : 20 }, schema)
+            .catch(errs => {
+                assert(errs);
+                assert(errs.length, 1);
+                const err = errs[0];
+                assert.equal(err.property, 'value');
+                assert.equal(err.message, 'Must be lower than 20');
+
+                // caught in the 2nd validator
+                return validator.validate({ value: 15 }, schema);
+            })
+            .catch(errs => {
+                const err = errs[0];
+                assert.equal(err.property, 'value');
+                assert.equal(err.message, 'Must be lower than 10');
+
+                // caugth in the 3rd validator
+                return validator.validate({ value: 9 }, schema);
+            })
+            .catch(errs => {
+                const err = errs[0];
+                assert.equal(err.property, 'value');
+                assert.equal(err.message, 'Must be lower than 8');
+
+                // now will pass by the 3 validators
+                return validator.validate({ value: 5 }, schema);
+            })
+            .then(res => {
+                assert(res);
+                assert.equal(res.value, 5);
+            });
+    });
+
+
+    it.only('Resolve message from function (Localization)', () => {
+        const schema = {
+            properties: { 
+                val: {
+                    type: 'string'
+                }
+            },
+            validator: {
+                isValid: () => false,
+                // this method allows a message to be resolved from an external
+                // function, like a localized message resolver
+                message: () => 'LOCALIZED MESSAGE'
+            }
+        };
+
+        return validator.validate({ val: 'Hi' }, schema)
+            .catch(errs => {
+                assert(errs);
+                assert.equal(errs.length, 1);
+                const err = errs[0];
+                assert.equal(err.message, 'LOCALIZED MESSAGE');
+            });
+    });
 });
