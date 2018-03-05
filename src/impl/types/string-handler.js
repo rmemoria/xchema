@@ -3,7 +3,7 @@ const utils = require('../../commons/utils');
 module.exports.validate = (propContext) => {
     var val = propContext.value;
     if (utils.isEmpty(val)) {
-        return Promise.resolve(null);
+        return null;
     }
 
     if (!utils.isString(val)) {
@@ -24,5 +24,5 @@ module.exports.validate = (propContext) => {
         return Promise.reject(propContext.error.minSize);
     }
 
-    return Promise.resolve(val);
+    return val;
 };

@@ -38,7 +38,7 @@ class PropertyContext {
             throw new Error('Handler not found for type \'' + this.schema.type + '\'');
         }
     
-        return handler.validate(this)
+        return Promise.resolve(handler.validate(this))
             .then(newval => {
                 this.value = newval;
                 // call custom validators

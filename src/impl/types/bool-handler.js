@@ -3,6 +3,10 @@ var utils = require('../../commons/utils');
 module.exports.validate = (propContext) => {
     var val = propContext.value;
 
+    if (utils.isEmpty(val)) {
+        return null;
+    }
+
     // check if number is in the correct type
     if (!utils.isBoolean(val)) {
         const newVal = convertValue(val);
@@ -13,7 +17,7 @@ module.exports.validate = (propContext) => {
         val = newVal;
     }
 
-    return Promise.resolve(val);
+    return val;
 };
 
 function convertValue(val) {

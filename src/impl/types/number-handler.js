@@ -3,6 +3,10 @@ var utils = require('../../commons/utils');
 module.exports.validate = (propContext) => {
     var val = propContext.value;
 
+    if (utils.isEmpty(val)) {
+        return null;
+    }
+
     // check if number is in the correct type
     if (!utils.isNumber(val)) {
         // check if number is in string format
@@ -24,5 +28,5 @@ module.exports.validate = (propContext) => {
         return Promise.reject(propContext.error.minValue);
     }
     
-    return Promise.resolve(val);
+    return val;
 };
