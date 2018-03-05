@@ -1,8 +1,9 @@
 var utils = require('../commons/utils');
 const typeHandlers = require('./type-handlers');
 const propertyResolver = require('./property-resolver');
-var errorGen = require('./error-generator');
-var customValidators = require('./custom-validators');
+const errorGen = require('./error-generator');
+const customValidators = require('./custom-validators');
+const customConverters = require('./custom-converters');
 
 
 class PropertyValidator {
@@ -45,7 +46,9 @@ class PropertyValidator {
                 if (err) {
                     return Promise.reject(err);
                 }
-                return newval;
+                this.value = newval;
+                // call converters
+                return customConverters.process(this);
             });
     }
 }

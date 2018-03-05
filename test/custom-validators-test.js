@@ -269,7 +269,7 @@ describe('Custom validators', () => {
     });
 
 
-    it.only('Resolve message from function (Localization)', () => {
+    it('Resolve message from function (Localization)', () => {
         const schema = {
             properties: { 
                 val: {

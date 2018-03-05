@@ -103,7 +103,5 @@ function handleValidator(propValidator, validator) {
 
     const msg = propertyResolver(validator.message, propValidator);
 
-    console.log('message = ', msg);
-
     return errorGen.createErrorMsg(propValidator.property, msg, validator.code);
 }
