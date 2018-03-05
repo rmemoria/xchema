@@ -1,20 +1,20 @@
 var utils = require('../../commons/utils');
 var errorGen = require('../error-generator');
-const PropertyValidator = require('../property-validator');
+const PropertyContext = require('../property-context');
 
-module.exports.validate = (propValidator) => {
-    let vals = propValidator.value;
+module.exports.validate = (propContext) => {
+    let vals = propContext.value;
 
     if (!utils.isArray(vals)) {
-        return Promise.reject(errorGen.createInvalidTypeMsg(propValidator.property));
+        return Promise.reject(errorGen.createInvalidTypeMsg(propContext.property));
     }
 
-    const itemSchema = propValidator.schema.itemSchema;
+    const itemSchema = propContext.schema.itemSchema;
     if (!itemSchema) {
         throw new Error('No schema found for array items: \'itemSchema\' not found');
     }
 
-    const prevProp = propValidator.property ? propValidator.property : '';
+    const prevProp = propContext.property ? propContext.property : '';
 
     const errors = [];
     const newLst = [];
@@ -24,7 +24,7 @@ module.exports.validate = (propValidator) => {
         const item = vals[index];
 
         // call validator for each item in the array
-        return validateItem(propValidator, item, propPrefix, itemSchema)
+        return validateItem(propContext, item, propPrefix, itemSchema)
             .then(newItem => {
                 newLst.push(newItem);
             })
@@ -48,9 +48,9 @@ module.exports.validate = (propValidator) => {
         });
 };
 
-function validateItem(propValidator, value, property, schema) {
-    const pv = new PropertyValidator(propValidator.doc,
-        value, property, schema, propValidator.schema);
+function validateItem(propContext, value, property, schema) {
+    const pv = new PropertyContext(propContext.doc,
+        value, property, schema, propContext.schema);
 
     return pv.validate();
 }

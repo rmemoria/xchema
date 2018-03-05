@@ -3,18 +3,18 @@ const errorGen = require('../error-generator');
 const validator = require('../schema-validator');
 
 
-module.exports.validate = (propValidator) => {
-    const value = propValidator.value;
+module.exports.validate = (propContext) => {
+    const value = propContext.value;
 
     if (utils.isEmpty(value)) {
         return Promise.resolve(null);
     }
 
     if (!utils.isObject(value)) {
-        return Promise.reject(errorGen.createInvalidTypeMsg(propValidator.property));
+        return Promise.reject(errorGen.createInvalidTypeMsg(propContext.property));
     }
 
-    const prefix = propValidator.property ? propValidator.property + '.' : '';
+    const prefix = propContext.property ? propContext.property + '.' : '';
 
-    return validator(propValidator.value, propValidator.schema, prefix);
+    return validator(propContext.value, propContext.schema, prefix);
 };

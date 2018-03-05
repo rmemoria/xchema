@@ -34,12 +34,12 @@ function unregisterValidator(name) {
     return validator;
 }
 
-function processCustomValidators(propValidator) {
-    const schema = propValidator.schema;
+function processCustomValidators(propContext) {
+    const schema = propContext.schema;
 
     // there is a single validator ?
     if (schema.validator) {
-        const err = callValidator(propValidator, schema.validator);
+        const err = callValidator(propContext, schema.validator);
         if (err) {
             return err;
         }
@@ -49,7 +49,7 @@ function processCustomValidators(propValidator) {
     if (schema.validators) {
         // iterate by all validators until an invalid is found
         for (const i in schema.validators) {
-            const err = callValidator(propValidator, schema.validators[i]);
+            const err = callValidator(propContext, schema.validators[i]);
             if (err) {
                 return err;
             }
@@ -58,7 +58,7 @@ function processCustomValidators(propValidator) {
     return null;
 }
 
-function callValidator(propValidator, validator) {
+function callValidator(propContext, validator) {
     if (utils.isString(validator)) {
         const v = validators[validator];
         if (!v) {
@@ -69,39 +69,39 @@ function callValidator(propValidator, validator) {
 
     // validator is a simple function ?
     if (utils.isFunction(validator)) {
-        return handleFunctionValidator(propValidator, validator);
+        return handleFunctionValidator(propContext, validator);
     }
 
-    return handleValidator(propValidator, validator);
+    return handleValidator(propContext, validator);
 }
 
-function handleFunctionValidator(propValidator, validator) {
-    const ret = propertyResolver(validator, propValidator);
+function handleFunctionValidator(propContext, validator) {
+    const ret = propertyResolver(validator, propContext);
 
     if (utils.isEmpty(ret)) {
         return null;
     }
 
     if (utils.isString(ret)) {
-        return errorGen.createErrorMsg(propValidator.property, ret, null);
+        return errorGen.createErrorMsg(propContext.property, ret, null);
     }
 
     throw new Error('Invalid return type of validator: ' + ret);
 }
 
-function handleValidator(propValidator, validator) {
+function handleValidator(propContext, validator) {
     const func = validator.isValid;
     if (!func || !utils.isFunction(func)) {
-        throw new Error('isValid function not found for schema + ' + propValidator.schema);
+        throw new Error('isValid function not found for schema + ' + propContext.schema);
     }
 
     // call validator and return true? So it is valid
-    const res = propertyResolver(func, propValidator);
+    const res = propertyResolver(func, propContext);
     if (res) {
         return null;
     }
 
-    const msg = propertyResolver(validator.message, propValidator);
+    const msg = propertyResolver(validator.message, propContext);
 
-    return errorGen.createErrorMsg(propValidator.property, msg, validator.code);
+    return errorGen.createErrorMsg(propContext.property, msg, validator.code);
 }

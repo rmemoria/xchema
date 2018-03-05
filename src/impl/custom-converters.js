@@ -12,36 +12,36 @@ module.exports = {
 
 /**
  * Process all converters in the property schema
- * @param {PropertyValidator} propValidator object containing all information about the property being validated
+ * @param {PropertyContext} propContext object containing all information about the property being validated
  * @returns the new value, or the original value, in case there is no converter
  */
-function processPropertyConverters(propValidator) {
-    const schema = propValidator.schema;
+function processPropertyConverters(propContext) {
+    const schema = propContext.schema;
 
     // execute the single converter, if available
-    return processConverter(schema.converter, propValidator.value, propValidator)
+    return processConverter(schema.converter, propContext.value, propContext)
         .then(newValue => {
             // check converters are available
             if (schema.converters) {
-                return execConverters(schema.converters, 0, newValue, propValidator);
+                return execConverters(schema.converters, 0, newValue, propContext);
             } else {
                 return newValue;
             }
         });
 }
 
-function execConverters(convs, index, value, propValidator) {
+function execConverters(convs, index, value, propContext) {
     const converter = convs[index];
-    return processConverter(converter, value, propValidator)
+    return processConverter(converter, value, propContext)
         .then(res => {
             if (index >= convs.length - 1) {
                 return res;
             }
-            return execConverters(convs, index + 1, res, propValidator);
+            return execConverters(convs, index + 1, res, propContext);
         });
 }
 
-function processConverter(converter, value, propValidator) {
+function processConverter(converter, value, propContext) {
     if (!converter) {
         return Promise.resolve(value);
     }
@@ -57,8 +57,8 @@ function processConverter(converter, value, propValidator) {
         throw new Error('Converter must be declared as a function');
     }
 
-    const res = converter(value, propValidator.doc,
-        propValidator.schema, propValidator.docSchema);
+    const res = converter(value, propContext.doc,
+        propContext.schema, propContext.docSchema);
 
     return Promise.resolve(res);
 }

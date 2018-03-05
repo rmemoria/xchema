@@ -2,14 +2,14 @@ var utils = require('../../commons/utils');
 var errorGen = require('../error-generator');
 
 
-module.exports.validate = (propValidator) => {
-    var val = propValidator.value;
+module.exports.validate = (propContext) => {
+    var val = propContext.value;
 
     // check if number is in the correct type
     if (!utils.isBoolean(val)) {
         const newVal = convertValue(val);
         if (newVal === null) {
-            return Promise.reject(errorGen.createInvalidTypeMsg(propValidator.property));
+            return Promise.reject(errorGen.createInvalidTypeMsg(propContext.property));
         }
 
         val = newVal;

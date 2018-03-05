@@ -6,7 +6,7 @@ const customValidators = require('./custom-validators');
 const customConverters = require('./custom-converters');
 
 
-class PropertyValidator {
+class PropertyContext {
 
     constructor(doc, value, property, schema, docSchema, propertyNotDeclared) {
         this.doc = doc;
@@ -29,7 +29,7 @@ class PropertyValidator {
 
         // if there is no value and the property was not declared, so there is nothing to validate
         if (utils.isEmpty(this.value) && this.propertyNotDeclared) {
-            return Promise.resolve(PropertyValidator.NotAValue);
+            return Promise.resolve(PropertyContext.NotAValue);
         }
 
         const handler = typeHandlers.getHandler(this.schema.type);
@@ -55,18 +55,18 @@ class PropertyValidator {
 
 /**
  * Return the default value, or the own value of the property
- * @param {PropertyValidator} propValidator 
+ * @param {PropertyContext} propContext 
  */
-function getDefaultValue(propValidator) {
+function getDefaultValue(propContext) {
     if (!utils.isEmpty(this.value)) {
         return this.value;
     }
 
-    if (propValidator.schema.defaultValue) {
-        return propertyResolver(propValidator.schema.defaultValue, propValidator);
+    if (propContext.schema.defaultValue) {
+        return propertyResolver(propContext.schema.defaultValue, propContext);
     }
 
-    return propValidator.value;
+    return propContext.value;
 }
 
 /**
@@ -74,12 +74,12 @@ function getDefaultValue(propValidator) {
  * @param {*} value 
  * @param {*} propSchema 
  */
-function checkNotNull(propValidator) {
-    const res = propertyResolver(propValidator.schema.required, propValidator) === true &&
-        utils.isEmpty(propValidator.value);
+function checkNotNull(propContext) {
+    const res = propertyResolver(propContext.schema.required, propContext) === true &&
+        utils.isEmpty(propContext.value);
     return !res;
 }
 
-PropertyValidator.NotAValue = {};
+PropertyContext.NotAValue = {};
 
-module.exports = PropertyValidator;
+module.exports = PropertyContext;

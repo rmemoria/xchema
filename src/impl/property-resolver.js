@@ -8,12 +8,12 @@ const utils = require('../commons/utils');
  * @param {Any} value 
  * @param {string} propertyValue the property value to be evaluated as a function or a value
  */
-module.exports = function(propertyValue, propValidator) {
+module.exports = function(propertyValue, propContext) {
     if (utils.isFunction(propertyValue)) {
-        return propertyValue(propValidator.value, 
-            propValidator.doc, 
-            propValidator.schema, 
-            propValidator.docSchema);
+        return propertyValue(propContext.value, 
+            propContext.doc, 
+            propContext.schema, 
+            propContext.docSchema);
     } else {
         return propertyValue;
     }

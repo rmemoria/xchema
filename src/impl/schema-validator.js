@@ -1,5 +1,5 @@
 var utils = require('../commons/utils');
-var PropertyValidator = require('./property-validator');
+var PropertyContext = require('./property-context');
 var customValidators = require('./custom-validators');
 
 
@@ -31,7 +31,7 @@ function validateObject(obj, schema, propertyPrefix) {
         const prom = validateProperty(obj, value, propertyPrefix + prop, propSchema, schema, !propDeclared)
             .then(newValue => {
                 // check if it is a value that must be implemented
-                if (newValue !== PropertyValidator.NotAValue) {
+                if (newValue !== PropertyContext.NotAValue) {
                     utils.setValue(newObject, prop, newValue);
                 }
             })
@@ -56,7 +56,7 @@ function validateObject(obj, schema, propertyPrefix) {
         .then(() => {
             // if properties were validated, call custom validator in the schema
             if (errors.length === 0) {
-                const pv = new PropertyValidator(obj, obj, null, schema, schema);
+                const pv = new PropertyContext(obj, obj, null, schema, schema);
                 const err = customValidators.processCustomValidators(pv);
                 if (err) {
                     errors.push(err);
@@ -80,7 +80,7 @@ function validateObject(obj, schema, propertyPrefix) {
  * @param {*} propSchema the schema of the property being validated
  */
 function validateProperty(obj, value, prop, propSchema, schema, propNotDeclared) {
-    const pr = new PropertyValidator(obj, value, prop, propSchema, schema, propNotDeclared);
+    const pr = new PropertyContext(obj, value, prop, propSchema, schema, propNotDeclared);
 
     return pr.validate();
 }
