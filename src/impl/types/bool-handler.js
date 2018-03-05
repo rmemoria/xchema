@@ -1,6 +1,4 @@
 var utils = require('../../commons/utils');
-var errorGen = require('../error-generator');
-
 
 module.exports.validate = (propContext) => {
     var val = propContext.value;
@@ -9,7 +7,7 @@ module.exports.validate = (propContext) => {
     if (!utils.isBoolean(val)) {
         const newVal = convertValue(val);
         if (newVal === null) {
-            return Promise.reject(errorGen.createInvalidTypeMsg(propContext.property));
+            return Promise.reject(propContext.error.invalidType);
         }
 
         val = newVal;

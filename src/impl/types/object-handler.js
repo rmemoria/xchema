@@ -1,5 +1,4 @@
 const utils = require('../../commons/utils');
-const errorGen = require('../error-generator');
 const validator = require('../schema-validator');
 
 
@@ -11,7 +10,7 @@ module.exports.validate = (propContext) => {
     }
 
     if (!utils.isObject(value)) {
-        return Promise.reject(errorGen.createInvalidTypeMsg(propContext.property));
+        return Promise.reject(propContext.error.invalidType);
     }
 
     const prefix = propContext.property ? propContext.property + '.' : '';

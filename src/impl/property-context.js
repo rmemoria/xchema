@@ -51,6 +51,47 @@ class PropertyContext {
                 return customConverters.process(this);
             });
     }
+
+    /**
+     * Helper functions to create specific error messages
+     */
+    get error() {
+        const prop = this.property;
+
+        return class ErrorWrapper {
+            static as(msg, code) { 
+                return errorGen.createErrorMsg(prop, msg, code);
+            }
+            
+            static asCode(code) { 
+                return errorGen.createErrorMsg(prop, null, code);
+            }
+
+            static get valueRequired() {
+                return errorGen.createValueRequiredMsg(prop);
+            }
+
+            static get invalidType() {
+                return errorGen.createInvalidTypeMsg(prop);
+            }
+
+            static get maxSize() {
+                return errorGen.createMaxSizeMsg(prop);
+            }
+
+            static get minSize() {
+                return errorGen.createMinSizeMsg(prop);
+            }
+
+            static get maxValue() {
+                return errorGen.createMaxValueMsg(prop);
+            }
+
+            static get minValue() {
+                return errorGen.createMinValueMsg(prop);
+            }
+        };
+    }
 }
 
 /**

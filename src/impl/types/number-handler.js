@@ -1,6 +1,4 @@
 var utils = require('../../commons/utils');
-var errorGen = require('../error-generator');
-
 
 module.exports.validate = (propContext) => {
     var val = propContext.value;
@@ -11,7 +9,7 @@ module.exports.validate = (propContext) => {
         if (utils.isString(val) && !isNaN(val)) {
             val = Number(val);
         } else {
-            return Promise.reject(errorGen.createInvalidTypeMsg(propContext.property));
+            return Promise.reject(propContext.error.invalidType);
         }
     }
 
@@ -19,11 +17,11 @@ module.exports.validate = (propContext) => {
     const schema = propContext.schema;
 
     if (schema.max && val > schema.max) {
-        return Promise.reject(errorGen.createMaxValueMsg(propContext.property));
+        return Promise.reject(propContext.error.maxValue);
     }
 
     if (schema.min && val < schema.min) {
-        return Promise.reject(errorGen.createMinValueMsg(propContext.property));
+        return Promise.reject(propContext.error.minValue);
     }
     
     return Promise.resolve(val);

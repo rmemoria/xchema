@@ -1,12 +1,11 @@
 var utils = require('../../commons/utils');
-var errorGen = require('../error-generator');
 const PropertyContext = require('../property-context');
 
 module.exports.validate = (propContext) => {
     let vals = propContext.value;
 
     if (!utils.isArray(vals)) {
-        return Promise.reject(errorGen.createInvalidTypeMsg(propContext.property));
+        return Promise.reject(propContext.error.invalidType);
     }
 
     const itemSchema = propContext.schema.itemSchema;
