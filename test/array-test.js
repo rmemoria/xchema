@@ -1,24 +1,28 @@
 const assert = require('assert');
-const validator = require('../src');
+const Schema = require('../src'), Types = Schema.types;
 
 describe('Array validator', () => {
 
     it('Array of objects', () => {
-        const schema = {
-            properties: {
-                values: {
-                    type: 'array',
-                    itemSchema: {
-                        type: 'object',
-                        properties: {
-                            name: {
-                                type: 'string'
-                            }
-                        }
-                    }
-                }
-            }
-        };
+        const schema = Schema.create({
+            values: Types.array()
+                .of(Types.object({
+                    name: Types.string()
+                }))
+        });
+        //         .
+        //          {
+        //         type: 'array',
+        //         itemSchema: {
+        //             type: 'object',
+        //             properties: {
+        //                 name: {
+        //                     type: 'string'
+        //                 }
+        //             }
+        //         }
+        //     }
+        // });
 
         const vals = {
             values: [
@@ -28,7 +32,7 @@ describe('Array validator', () => {
             ]
         };
 
-        return validator.validate(vals, schema)
+        return schema.validate(vals)
             .then(doc => {
                 assert(doc);
                 assert(doc.values);
@@ -37,16 +41,19 @@ describe('Array validator', () => {
     });
 
     it('Array of strings', () => {
-        const schema = {
-            properties: {
-                values: {
-                    type: 'array',
-                    itemSchema: {
-                        type: 'string'
-                    }
-                }
-            }
-        };
+        const schema = Schema.create({
+            values: Types.array().of(Types.string())
+        });
+        // const schema = {
+        //     properties: {
+        //         values: {
+        //             type: 'array',
+        //             itemSchema: {
+        //                 type: 'string'
+        //             }
+        //         }
+        //     }
+        // };
 
         const doc = {
             values: [
@@ -56,7 +63,7 @@ describe('Array validator', () => {
             ]
         };
 
-        return validator.validate(doc, schema)
+        return schema.validate(doc)
             .then(res => {
                 assert(res);
                 assert(res.values);
@@ -68,22 +75,25 @@ describe('Array validator', () => {
     });
 
     it('Invalid element', () => {
-        const schema = {
-            properties: {
-                values: {
-                    type: 'array',
-                    itemSchema: {
-                        type: 'number'
-                    }
-                }
-            }
-        };
+        const schema = Schema.create({
+            values: Types.array().of(Types.number())
+        });
+        // const schema = {
+        //     properties: {
+        //         values: {
+        //             type: 'array',
+        //             itemSchema: {
+        //                 type: 'number'
+        //             }
+        //         }
+        //     }
+        // };
 
         const vals = {
             values: [10, 20, 'abc', 40]
         };
 
-        return validator.validate(vals, schema)
+        return schema.validate(vals)
             .catch(errs => {
                 assert(errs);
                 assert.equal(errs.length, 1);
@@ -94,22 +104,27 @@ describe('Array validator', () => {
     });
 
     it('Object as array element', () => {
-        const schema = {
-            properties: {
-                values: {
-                    type: 'array',
-                    itemSchema: {
-                        type: 'object',
-                        properties: {
-                            name: {
-                                type: 'string',
-                                required: true
-                            }
-                        }
-                    }
-                }
-            }
-        };
+        const schema = Schema.create({
+            values: Types.array().of(Types.object({
+                name: Types.string().notNull()
+            }))
+        });
+        // const schema = {
+        //     properties: {
+        //         values: {
+        //             type: 'array',
+        //             itemSchema: {
+        //                 type: 'object',
+        //                 properties: {
+        //                     name: {
+        //                         type: 'string',
+        //                         required: true
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // };
 
         const doc = {
             values: [
@@ -118,13 +133,13 @@ describe('Array validator', () => {
             ]
         };
 
-        return validator.validate(doc, schema)
+        return schema.validate(doc)
             .catch(errs => {
                 assert(errs);
                 assert.equal(errs.length, 1);
                 const err = errs[0];
                 assert.equal(err.property, 'values[1].name');
-                assert.equal(err.code, 'VALUE_REQUIRED');
+                assert.equal(err.code, 'NOT_NULL');
             });
     });
 });

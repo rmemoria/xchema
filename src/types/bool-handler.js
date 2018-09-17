@@ -1,4 +1,7 @@
-var utils = require('../../commons/utils');
+var utils = require('../commons/utils');
+const PropertyBuilder = require('../core/property-builder');
+
+module.exports.typeName = 'bool';
 
 module.exports.validate = (propContext) => {
     var val = propContext.value;
@@ -19,6 +22,10 @@ module.exports.validate = (propContext) => {
 
     return val;
 };
+
+module.exports.PropertyBuilder = class BoolBuilder extends PropertyBuilder {
+};
+
 
 function convertValue(val) {
     const trueValues = ['true', '1', 1];

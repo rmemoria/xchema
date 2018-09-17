@@ -1,5 +1,8 @@
-var utils = require('../../commons/utils');
-const PropertyContext = require('../property-context');
+var utils = require('../commons/utils');
+const PropertyContext = require('../impl/property-context');
+const PropertyBuilder = require('../core/property-builder');
+
+module.exports.typeName = 'array';
 
 module.exports.validate = (propContext) => {
     let vals = propContext.value;
@@ -8,10 +11,7 @@ module.exports.validate = (propContext) => {
         return Promise.reject(propContext.error.invalidType);
     }
 
-    const itemSchema = propContext.schema.itemSchema;
-    if (!itemSchema) {
-        throw new Error('No schema found for array items: \'itemSchema\' not found');
-    }
+    const itemSchema = resolveItemSchema(propContext.schema.itemSchema);
 
     const prevProp = propContext.property ? propContext.property : '';
 
@@ -46,6 +46,37 @@ module.exports.validate = (propContext) => {
             }
         });
 };
+
+module.exports.PropertyBuilder = class ArrayBuilder extends PropertyBuilder {
+    /**
+     * Set the schema of the items in the array
+     * @param {PropertyBuilder} itemSchema set the item schema
+     */
+    of(itemSchema) {
+        if (!itemSchema) {
+            throw new Error('Schema of item array not defined');
+        }
+        this.schema.itemSchema = itemSchema;
+
+        return this;
+    }
+};
+
+/**
+ * Check if val is instanceof PropertyBuilder, if so returns its schema
+ * or return the own value (considering it is an object containing the schema)
+ * @param {PropertyBuilder} val 
+ */
+function resolveItemSchema(val) {
+    if (!val) {
+        throw new Error('No schema found for array items: \'itemSchema\' not found');
+    }
+
+    if (val instanceof PropertyBuilder) {
+        return val.schema;
+    }
+    return val;
+}
 
 function validateItem(propContext, value, property, schema) {
     const pv = new PropertyContext(propContext.doc,

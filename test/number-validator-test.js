@@ -1,20 +1,16 @@
-var assert = require('assert');
-var validator = require('../src');
+const assert = require('assert');
+const Schema = require('../src'), Types = Schema.types;
 
-const schema1 = {
-    properties: {
-        value: {
-            type: 'number',
-            max: 100,
-            min: -20
-        }
-    }
-};
+const schema1 = Schema.create({
+    value: Types.number()
+        .max(100)
+        .min(-20)
+});
 
 describe('Number validator', function() {
 
     it('Valid type', function() {
-        return validator.validate({ value: 10 }, schema1)
+        return schema1.validate({ value: 10 })
             .then(doc => {
                 assert(doc);
                 assert.equal(10, doc.value);
@@ -22,7 +18,7 @@ describe('Number validator', function() {
     });
 
     it('Invalid type', function() {
-        validator.validate({ value: 'x' }, schema1)
+        schema1.validate({ value: 'x' })
             .catch(errors => {
                 assert(errors);
                 assert.equal(errors.length, 1);
@@ -30,7 +26,7 @@ describe('Number validator', function() {
     });
 
     it('Number as string', function() {
-        validator.validate({ value: '-10' }, schema1)
+        schema1.validate({ value: '-10' })
             .then(doc => {
                 assert(doc);
                 assert.equal(doc.value, -10);
@@ -38,11 +34,11 @@ describe('Number validator', function() {
     });
 
     it('Max value', function(done) {
-        validator.validate({ value: 100 }, schema1)
+        schema1.validate({ value: 100 })
             .then(doc => {
                 assert(doc);
                 assert.equal(doc.value, 100);
-                return validator.validate({ value: 101 }, schema1);
+                return schema1.validate({ value: 101 });
             })
             .catch(errors => {
                 assert(errors);
@@ -55,11 +51,11 @@ describe('Number validator', function() {
     });
 
     it('Min value', function(done) {
-        validator.validate({ value: -20 }, schema1)
+        schema1.validate({ value: -20 })
             .then(doc => {
                 assert(doc);
                 assert.equal(doc.value, -20);
-                return validator.validate({ value: -21 }, schema1);
+                return schema1.validate({ value: -21 });
             })
             .catch(errors => {
                 assert(errors);

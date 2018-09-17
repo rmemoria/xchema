@@ -1,20 +1,16 @@
-var assert = require('assert');
-var validator = require('../src');
+const assert = require('assert');
+const Schema = require('../src');
+const Types = Schema.types;
 
 describe('Custom converters', () => {
 
     it('Simple converter', () => {
 
-        const schema = {
-            properties: {
-                name: {
-                    type: 'string',
-                    converter: s => 'Hello ' + s
-                }
-            }
-        };
+        const schema = Schema.create({
+            name: Types.string().convertTo(s => 'Hello ' + s)
+        });
 
-        return validator.validate({ name: 'world' }, schema)
+        return schema.validate({ name: 'world' }, schema)
             .then(doc => {
                 assert(doc);
                 assert(doc.name);
@@ -23,20 +19,18 @@ describe('Custom converters', () => {
     });
 
     it('Multiple converters', () => {
-        const schema = {
-            properties: {
-                name: {
-                    type: 'string',
-                    converter: s => '[' + s + ']',
-                    converters: [
-                        s => 'Hello ' + s,
-                        s => s + ', I am from Mars' 
-                    ]
-                }
+        const schema = Schema.create({
+            name: {
+                type: 'string',
+                converter: s => '[' + s + ']',
+                converters: [
+                    s => 'Hello ' + s,
+                    s => s + ', I am from Mars' 
+                ]
             }
-        };
+        });
 
-        return validator.validate({ name: 'Gabriel' }, schema)
+        return schema.validate({ name: 'Gabriel' }, schema)
             .then(doc => {
                 assert(doc);
                 assert.equal(doc.name, 'Hello [Gabriel], I am from Mars');
@@ -46,21 +40,19 @@ describe('Custom converters', () => {
     it('Skip converter on validation error', () => {
         let convCalled = false;
     
-        const schema = {
-            properties: {
-                name: {
-                    type: 'string',
-                    converter: s => {
-                        convCalled = true;
-                        return '[' + s + ']';
-                    },
-                    // validator always fail
-                    validator: () => 'Erro'
-                }
+        const schema = Schema.create({
+            name: {
+                type: 'string',
+                converter: s => {
+                    convCalled = true;
+                    return '[' + s + ']';
+                },
+                // validator always fail
+                validator: () => 'Erro'
             }
-        };
+        });
 
-        validator.validate({ name: 'Test' }, schema)
+        schema.validate({ name: 'Test' }, schema)
             .catch(errs => {
                 assert(errs);
                 assert(errs.length, 1);

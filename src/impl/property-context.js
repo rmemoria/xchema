@@ -6,7 +6,7 @@ const customValidators = require('./custom-validators');
 const customConverters = require('./custom-converters');
 
 
-class PropertyContext {
+module.exports = class PropertyContext {
 
     constructor(doc, value, property, schema, docSchema, propertyNotDeclared) {
         this.doc = doc;
@@ -22,7 +22,7 @@ class PropertyContext {
      */
     validate() {
         if (!checkNotNull(this)) {
-            return Promise.reject(errorGen.createValueRequiredMsg(this.property));
+            return Promise.reject(errorGen.createNotNullMsg(this.property));
         }
 
         this.value = getDefaultValue(this);
@@ -67,8 +67,8 @@ class PropertyContext {
                 return errorGen.createErrorMsg(prop, null, code);
             }
 
-            static get valueRequired() {
-                return errorGen.createValueRequiredMsg(prop);
+            static get notNull() {
+                return errorGen.createNotNullMsg(prop);
             }
 
             static get invalidType() {
@@ -116,11 +116,9 @@ function getDefaultValue(propContext) {
  * @param {*} propSchema 
  */
 function checkNotNull(propContext) {
-    const res = propertyResolver(propContext.schema.required, propContext) === true &&
+    const res = propertyResolver(propContext.schema.notNull, propContext) === true &&
         utils.isEmpty(propContext.value);
     return !res;
 }
 
-PropertyContext.NotAValue = {};
-
-module.exports = PropertyContext;
+module.exports.NotAValue = {};

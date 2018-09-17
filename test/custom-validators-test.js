@@ -1,5 +1,6 @@
 var assert = require('assert');
-var validator = require('../src');
+var Schema = require('../src'),
+    Types = Schema.types;
 
 describe('Custom validators', () => {
 
@@ -9,35 +10,27 @@ describe('Custom validators', () => {
         let propSingleCalled = false;
         let propMultiCalled = false;
 
-        const sc = {
-            properties: {
-                name: {
-                    type: 'string',
-                    validator: () => {
-                        propSingleCalled = true;
-                        return null;
-                    },
-                    validators: [
-                        () => {
-                            propMultiCalled = true;
-                            return null;
-                        }
-                    ]
-                }
-            },
-            validator: () => {
+        const sc = Schema.create({
+            name: Types.string()
+                .validIf(() => {
+                    propSingleCalled = true;
+                    return true;
+                })
+                .validIf(() => {
+                    propMultiCalled = true;
+                    return true;
+                })
+        })
+            .validIf(() => {
                 schemaSingleCalled = true;
-                return null;
-            },
-            validators: [
-                () => {
-                    schemaMultiCalled = true;
-                    return null;
-                }
-            ]
-        };
+                return true;
+            })
+            .validIf(() => {
+                schemaMultiCalled = true;
+                return true;
+            });
 
-        return validator.validate({ name: 'Ricardo' }, sc)
+        return sc.validate({ name: 'Ricardo' })
             .then(() => {
                 assert(schemaSingleCalled);
                 assert(propSingleCalled);
@@ -48,23 +41,17 @@ describe('Custom validators', () => {
 
 
     it('Failed validation', () => {
-        const sc = {
-            properties: {
-                name: {
-                    type: 'string',
-                    validator: {
-                        isValid: name => name !== 'vancouver',
-                        code: 'INVALID_NAME'
-                    }
-                }
-            }
-        };
+        const sc = Schema.create({
+            name: Types.string()
+                .validIf(name => name !== 'vancouver')
+                .withErrorCode('INVALID_NAME')
+        });
 
         // first check a valid value
-        return validator.validate({ name: 'rio de janeiro' }, sc)
+        return sc.validate({ name: 'rio de janeiro' })
             .then(() => {
                 // now check an invalid value
-                return validator.validate({ name: 'vancouver' }, sc);
+                return sc.validate({ name: 'vancouver' });
             })
             .then(() => {
                 assert.fail('Validation should have failed');
@@ -79,20 +66,14 @@ describe('Custom validators', () => {
 
     it('Custom validator in schema', () => {
         const errmsg = 'Name cannot be vancouver';
-        const sc = {
-            properties: {
-                name: {
-                    type: 'string'
-                }
-            },
-            validator: {
-                isValid: (val, doc) => doc.name != 'vancouver',
-                message: errmsg,
-                code: 'INVALID_NAME'
-            }
-        };
+        const sc = Schema.create({
+            name: Types.string()
+        })
+            .validIf(doc => doc.name !== 'vancouver')
+            .withErrorMessage(errmsg)
+            .withErrorCode('INVALID_NAME');
 
-        return validator.validate({ name: 'vancouver' }, sc)
+        return sc.validate({ name: 'vancouver' })
             .catch(errs => {
                 assert.equal(errs.length, 1);
                 const err = errs[0];
@@ -103,67 +84,54 @@ describe('Custom validators', () => {
     });
 
     it('Skip custom validator in case of invalid property', () => {
-        const sc = {
-            properties: {
-                name: {
-                    type: 'string',
-                    required: true,
-                    validator: name => name != 'vancouver'
-                }
-            }
-        };
+        const sc = Schema.create({
+            name: Types.string()
+                .notNull()
+                .validIf(name => name != 'vancouver')
+        });
 
-        return validator.validate({ name: null }, sc)
+        return sc.validate({ name: null })
             .catch(errs => {
                 assert(errs);
                 assert.equal(errs.length, 1);
                 const err = errs[0];
                 assert.equal(err.property, 'name');
-                assert.equal(err.code, 'VALUE_REQUIRED');
+                assert.equal(err.code, 'NOT_NULL');
             });
     });
 
     it('Simple function validator', () => {
         const errmsg = 'Cannot be Vancouver';
-        const sc = {
-            properties: {
-                name: {
-                    type: 'string',
-                    validator: (v, doc) => doc.name.toLowerCase() != 'vancouver' ?
-                        null : errmsg
-                }
-            }
-        };
+        const sc = Schema.create({
+            name: Types.string()
+                .validIf((v, doc) => doc.name.toLowerCase() != 'vancouver')
+                .withErrorMessage(errmsg)
+        });
 
-        return validator.validate({ name: 'Rio' }, sc)
+        return sc.validate({ name: 'Rio' })
             .then(() => {
-                return validator.validate({ name: 'Vancouver' }, sc);
+                return sc.validate({ name: 'Vancouver' });
             })
             .catch(errs => {
                 assert(errs);
                 const err = errs[0];
                 assert.equal(err.property, 'name');
                 assert.equal(err.message, errmsg);
-                assert.equal(err.code, null);
+                assert.equal(err.code, 'INVALID');
             });
     });
 
     it('Register/use/unregister validator', () => {
         const errMsg = 'Value must be less than 10';
 
-        validator.validators.register('smallNumber', 
+        Schema.validators.register('smallNumber', 
             value => value > 10 ? errMsg : null);
         
-        const schema = {
-            properties: {
-                value: {
-                    type: 'number',
-                    validator: 'smallNumber'
-                }
-            }
-        };
+        const schema = Schema.create({
+            value: Types.number().validIf('smallnumber')
+        });
 
-        return validator.validate({ value: 20 }, schema)
+        return schema.validate({ value: 20 })
             .catch(errs => {
                 assert(errs);
                 assert.equal(errs.length, 1);
@@ -172,15 +140,15 @@ describe('Custom validators', () => {
                 assert.equal(err.message, errMsg);
 
                 // check if get returns the validator
-                assert(validator.validators.get('smallNumber'));
+                assert(Schema.validators.get('smallNumber'));
 
                 // unregister and test if it was removed
-                validator.validators.unregister('smallNumber');
-                assert(!validator.validators.get('smallNumber'));
+                Schema.validators.unregister('smallNumber');
+                assert(!Schema.validators.get('smallNumber'));
 
                 // test validation of the schema without the validator
                 // it must generate an unexpected error
-                return validator.validate({ value: 20 }, schema);
+                return schema.validate({ value: 20 });
             })
             .catch(err => {
                 assert(err instanceof Error);
@@ -188,31 +156,25 @@ describe('Custom validators', () => {
     });
 
     it('Register complex validator', () => {
-        validator.validators.register('smallNumber', {
-            isValid: value => value <= 10,
-            code: 'NOT_SMALL_NUMBER'
+        Schema.validators
+            .register('smallNumber', value => value <= 10)
+            .withErrorCode('NOT_SMALL_NUMBER');
+
+        const schema = Schema.create({
+            value: Types.number().validIf('smallNumber')
         });
 
-        const schema = {
-            properties: {
-                value: {
-                    type: 'number',
-                    validator: 'smallNumber'
-                }
-            }
-        };
-
-        return validator.validate({ value: 20 }, schema)
+        return schema.validate({ value: 20 })
             .catch(errs => {
                 assert(errs);
                 assert.equal(errs.length, 1);
                 const err = errs[0];
                 assert.equal(err.property, 'value');
-                assert(!err.message);
+                assert(err.message);
                 assert.equal(err.code, 'NOT_SMALL_NUMBER');
 
                 // just check if error will not be registered in valid values
-                return validator.validate({ value: 10 }, schema);
+                return schema.validate({ value: 10 });
             })
             .then(res => {
                 assert(res);
@@ -221,21 +183,18 @@ describe('Custom validators', () => {
     });
 
     it('Multiple validators', () => {
-        const schema = {
-            properties: {
-                value: {
-                    type: 'number',
-                    validators: [
-                        val => val >= 20 ? 'Must be lower than 20' : null,
-                        val => val >= 10 ? 'Must be lower than 10' : null,
-                        val => val >= 8 ? 'Must be lower than 8' : null
-                    ]
-                }
-            }
-        };
+        const schema = Schema.create({
+            value: Types.number()
+                .validIf(val => val < 20)
+                .withErrorMessage('Must be lower than 20')
+                .validIf(val => val < 10)
+                .withErrorMessage('Must be lower than 10')
+                .validIf(val => val < 8)
+                .withErrorMessage('Must be lower than 8')
+        });
 
         // caught in the 1st validator
-        return validator.validate({ value : 20 }, schema)
+        return schema.validate({ value : 20 })
             .catch(errs => {
                 assert(errs);
                 assert(errs.length, 1);
@@ -244,7 +203,7 @@ describe('Custom validators', () => {
                 assert.equal(err.message, 'Must be lower than 20');
 
                 // caught in the 2nd validator
-                return validator.validate({ value: 15 }, schema);
+                return schema.validate({ value: 15 });
             })
             .catch(errs => {
                 const err = errs[0];
@@ -252,7 +211,7 @@ describe('Custom validators', () => {
                 assert.equal(err.message, 'Must be lower than 10');
 
                 // caugth in the 3rd validator
-                return validator.validate({ value: 9 }, schema);
+                return schema.validate({ value: 9 });
             })
             .catch(errs => {
                 const err = errs[0];
@@ -260,7 +219,7 @@ describe('Custom validators', () => {
                 assert.equal(err.message, 'Must be lower than 8');
 
                 // now will pass by the 3 validators
-                return validator.validate({ value: 5 }, schema);
+                return schema.validate({ value: 5 });
             })
             .then(res => {
                 assert(res);
@@ -270,21 +229,15 @@ describe('Custom validators', () => {
 
 
     it('Resolve message from function (Localization)', () => {
-        const schema = {
-            properties: { 
-                val: {
-                    type: 'string'
-                }
-            },
-            validator: {
-                isValid: () => false,
-                // this method allows a message to be resolved from an external
-                // function, like a localized message resolver
-                message: () => 'LOCALIZED MESSAGE'
-            }
-        };
+        const schema = Schema.create({
+            val: Types.string()
+        })
+            .validIf(() => false)
+            // this method allows a message to be resolved from an external
+            // function, like a localized message resolver
+            .withErrorMessage(() => 'LOCALIZED MESSAGE');
 
-        return validator.validate({ val: 'Hi' }, schema)
+        return schema.validate({ val: 'Hi' })
             .catch(errs => {
                 assert(errs);
                 assert.equal(errs.length, 1);

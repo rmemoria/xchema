@@ -1,6 +1,7 @@
-var utils = require('../commons/utils');
-var PropertyContext = require('./property-context');
-var customValidators = require('./custom-validators');
+const utils = require('../commons/utils');
+const PropertyContext = require('./property-context');
+const customValidators = require('./custom-validators');
+const PropertyBuilder = require('../core/property-builder');
 
 
 /**
@@ -80,7 +81,11 @@ function validateObject(obj, schema, propertyPrefix) {
  * @param {*} propSchema the schema of the property being validated
  */
 function validateProperty(obj, value, prop, propSchema, schema, propNotDeclared) {
-    const pr = new PropertyContext(obj, value, prop, propSchema, schema, propNotDeclared);
+    const pschema = propSchema instanceof PropertyBuilder ?
+        propSchema.schema :
+        propSchema;
+
+    const pr = new PropertyContext(obj, value, prop, pschema, schema, propNotDeclared);
 
     return pr.validate();
 }

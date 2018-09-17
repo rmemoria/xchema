@@ -1,4 +1,7 @@
-var utils = require('../../commons/utils');
+var utils = require('../commons/utils');
+const PropertyBuilder = require('../core/property-builder');
+
+module.exports.typeName = 'number';
 
 module.exports.validate = (propContext) => {
     var val = propContext.value;
@@ -29,4 +32,24 @@ module.exports.validate = (propContext) => {
     }
     
     return val;
+};
+
+module.exports.PropertyBuilder = class NumberBuilder extends PropertyBuilder {
+    max(val) {
+        if (!utils.isNumber(val)) {
+            throw new Error('Invalid max property value: ' + val);
+        }
+
+        this.schema.max = val;
+        return this;
+    }
+
+    min(val) {
+        if (!utils.isNumber(val)) {
+            throw new Error('Invalid min property value: ' + val);
+        }
+
+        this.schema.min = val;
+        return this;
+    }
 };

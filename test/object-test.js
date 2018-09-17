@@ -1,37 +1,25 @@
 const assert = require('assert');
-const validator = require('../src');
+const Schema = require('../src'),
+    Types = Schema.types;
 
-const schema = {
-    properties: {
-        name: {
-            type: 'object',
-            properties: {
-                firstName: {
-                    type: 'string',
-                    required: true
-                },
-                middleName: {
-                    type: 'string'
-                },
-                lastName: {
-                    type: 'string',
-                    required: true
-                }
-            }
-        }
-    }
-};
+const schema = Schema.create({
+    name: Types.object({
+        firstName: Types.string().notNull(),
+        middleName: Types.string(),
+        lastName: Types.string().notNull()
+    })
+});
 
 describe('Object validator', () => {
 
     it('Valid object', () => {
-        return validator.validate({
+        return schema.validate({
             name: {
                 firstName: 'FIRST',
                 middleName: 'MIDDLE',
                 lastName: 'LAST'
             }
-        }, schema)
+        })
             .then(doc => {
                 assert(doc);
                 assert(doc.name);
@@ -43,41 +31,30 @@ describe('Object validator', () => {
     });
 
     it('Required fields missing', () => {
-        return validator.validate({
+        return schema.validate({
             name: {
                 firstName: 'FIRST', middleName: 'MIDDLE'
             }
-        }, schema)
+        })
             .catch(errs => {
                 assert(errs);
                 assert.equal(errs.length, 1);
                 const err = errs[0];
                 assert.equal(err.property, 'name.lastName');
-                assert.equal(err.code, 'VALUE_REQUIRED');
+                assert.equal(err.code, 'NOT_NULL');
             });
     });
 
     it('Nested object', () => {
-        const schema = {
-            properties: {
-                prop1: {
-                    type: 'object',
-                    properties: {
-                        prop2: {
-                            type: 'object',
-                            required: true,
-                            properties: {
-                                prop3: {
-                                    type: 'string'
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        };
+        const schema = Schema.create({
+            prop1: Types.object({
+                prop2: Types.object({
+                    prop3: Types.string()
+                }).notNull()
+            })
+        });
 
-        return validator.validate({ prop1: { prop2: { prop3: 123 }}}, schema)
+        return schema.validate({ prop1: { prop2: { prop3: 123 }}})
             .catch(errs => {
                 assert(errs);
                 assert.equal(errs.length, 1);
@@ -85,7 +62,7 @@ describe('Object validator', () => {
                 assert.equal(err.property, 'prop1.prop2.prop3');
                 assert.equal(err.code, 'INVALID_TYPE');
 
-                return validator.validate({ prop1: { }}, schema);
+                return schema.validate({ prop1: { }});
             })
             .then(() => {
                 assert.fail('Should not be called');
@@ -95,26 +72,18 @@ describe('Object validator', () => {
                 assert.equal(errs.length, 1);
                 const err = errs[0];
                 assert.equal(err.property, 'prop1.prop2');
-                assert.equal(err.code, 'VALUE_REQUIRED');
+                assert.equal(err.code, 'NOT_NULL');
             });
     });
 
     it('Invalid type', () => {
-        const schema = {
-            properties: {
-                address: {
-                    type: 'object',
-                    properties: {
-                        'street': {
-                            type: 'string',
-                            required: true
-                        }
-                    }
-                }
-            }
-        };
+        const schema = Schema.create({
+            address: Types.object({
+                street: Types.string().notNull()
+            })
+        });
 
-        return validator.validate({ address: 0 }, schema)
+        return schema.validate({ address: 0 })
             .catch(errs => {
                 assert(errs);
                 assert(errs.length, 1);
@@ -122,14 +91,14 @@ describe('Object validator', () => {
                 assert(err.property, 'address');
                 assert(err.code, 'INVALID_TYPE');
 
-                return validator.validate({ address: { }}, schema);
+                return schema.validate({ address: { }});
             })
             .catch(errs => {
                 assert(errs);
                 assert(errs.length, 1);
                 const err = errs[0];
                 assert(err.property, 'address.street');
-                assert(err.code, 'VALUE_REQUIRED');
+                assert(err.code, 'NOT_NULL');
             });
     });
 });

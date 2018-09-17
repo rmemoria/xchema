@@ -1,6 +1,8 @@
 const utils = require('../commons/utils');
 const errorGen = require('./error-generator');
 const propertyResolver = require('./property-resolver');
+const util = require('util');
+const ValidatorBuilder = require('./validator-builder');
 
 const validators = {};
 
@@ -18,10 +20,13 @@ module.exports = {
 /**
  * Register a new custom validator to be used throughout the implementation
  * @param {string} name 
- * @param {function} handler 
+ * @param {function} handler a function that returns true if the validation was successfull
  */
 function registerValidator(name, handler) {
-    validators[name] = handler;
+    const builder = new ValidatorBuilder();
+    const validator = builder.bind(handler);
+    validators[name] = validator;
+    return builder;
 }
 
 function findValidator(name) {
@@ -90,9 +95,9 @@ function handleFunctionValidator(propContext, validator) {
 }
 
 function handleValidator(propContext, validator) {
-    const func = validator.isValid;
+    const func = validator.validIf;
     if (!func || !utils.isFunction(func)) {
-        throw new Error('isValid function not found for schema + ' + propContext.schema);
+        throw new Error('validIf function not found for schema + ' + util.inspect(propContext.schema));
     }
 
     // call validator and return true? So it is valid
@@ -101,7 +106,7 @@ function handleValidator(propContext, validator) {
         return null;
     }
 
-    const msg = propertyResolver(validator.message, propContext);
+    const msg = propertyResolver(validator.message, propContext) || 'Not valid';
 
-    return errorGen.createErrorMsg(propContext.property, msg, validator.code);
+    return errorGen.createErrorMsg(propContext.property, msg, validator.code || 'INVALID');
 }
