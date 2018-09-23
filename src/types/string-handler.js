@@ -15,7 +15,7 @@ module.exports.validate = (propContext) => {
 
     const schema = propContext.schema;
 
-    if (schema.trim || propContext.docSchema.autoTrim) {
+    if (schema.trim) {
         val = val.trim();
     }
 

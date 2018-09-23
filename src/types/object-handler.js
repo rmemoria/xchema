@@ -17,7 +17,7 @@ module.exports.validate = (propContext) => {
 
     const prefix = propContext.property ? propContext.property + '.' : '';
 
-    return validator(propContext.value, propContext.schema, prefix);
+    return validator(propContext.value, propContext.schema, propContext.session, prefix);
 };
 
 module.exports.PropertyBuilder = class ObjectBuilder extends PropertyBuilder {

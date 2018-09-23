@@ -8,17 +8,7 @@ const schema = Schema.create({
     name2: Types.string()
         .notNull((v, doc) => utils.isEmpty(doc.name1))
 });
-// const schema = {
-//     properties: {
-//         name1: {
-//             type: 'string'
-//         },
-//         name2: {
-//             type: 'string',
-//             required: (v, doc) => utils.isEmpty(doc.name1)
-//         }
-//     }
-// };
+
 
 describe('Required fields', () => {
 

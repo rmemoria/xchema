@@ -4,7 +4,9 @@ const ValidatorBuilder = require('../impl/validator-builder');
 
 module.exports = class ObjectSchema {
 
-    constructor (properties) {
+    constructor (session, properties) {
+        this.session = session;
+
         if (!properties) {
             throw new Error('Schema properties must be provided');
         }
@@ -18,7 +20,7 @@ module.exports = class ObjectSchema {
      * @param {any} obj object to be validated
      */
     validate(obj) {
-        return validator(obj, this.schema);
+        return validator(obj, this.schema, this.session);
     }
 
     /**

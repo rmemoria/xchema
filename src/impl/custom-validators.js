@@ -42,14 +42,6 @@ function unregisterValidator(name) {
 function processCustomValidators(propContext) {
     const schema = propContext.schema;
 
-    // there is a single validator ?
-    if (schema.validator) {
-        const err = callValidator(propContext, schema.validator);
-        if (err) {
-            return err;
-        }
-    }
-
     // there is an array of custom validators ?
     if (schema.validators) {
         // iterate by all validators until an invalid is found

@@ -1,5 +1,5 @@
 var utils = require('../commons/utils');
-const typeHandlers = require('./type-handlers');
+//const typeHandlers = require('./type-handlers');
 const propertyResolver = require('./property-resolver');
 const errorGen = require('./error-generator');
 const customValidators = require('./custom-validators');
@@ -8,13 +8,14 @@ const customConverters = require('./custom-converters');
 
 module.exports = class PropertyContext {
 
-    constructor(doc, value, property, schema, docSchema, propertyNotDeclared) {
+    constructor(doc, value, property, schema, docSchema, propertyNotDeclared, session) {
         this.doc = doc;
         this.value = value;
         this.property = property;
         this.schema = schema;
         this.docSchema = docSchema;
         this.propertyNotDeclared = !!propertyNotDeclared;
+        this.session = session;
     }
 
     /**
@@ -32,7 +33,7 @@ module.exports = class PropertyContext {
             return Promise.resolve(PropertyContext.NotAValue);
         }
 
-        const handler = typeHandlers.getHandler(this.schema.type);
+        const handler = this.session.getHandler(this.schema.type);
 
         if (!handler) {
             throw new Error('Handler not found for type \'' + this.schema.type + '\'');
@@ -92,7 +93,7 @@ module.exports = class PropertyContext {
             }
         };
     }
-}
+};
 
 /**
  * Return the default value, or the own value of the property

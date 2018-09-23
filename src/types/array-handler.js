@@ -80,7 +80,7 @@ function resolveItemSchema(val) {
 
 function validateItem(propContext, value, property, schema) {
     const pv = new PropertyContext(propContext.doc,
-        value, property, schema, propContext.schema);
+        value, property, schema, propContext.schema, null, propContext.session);
 
     return pv.validate();
 }
