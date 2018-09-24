@@ -59,4 +59,49 @@ describe('Custom converters', () => {
                 assert(!convCalled);
             });
     });
+
+    it('Global converter', () => {
+        Schema.registerConverter('multi_10', v => v < 10 ? v : v * 10);
+
+        const schema = Schema.create({
+            value: Types.number().convertTo('multi_10')
+        });
+
+        schema.validate({ value: 5 })
+            .then(doc => {
+                assert(doc.value);
+                assert.equal(doc.value, 5);
+
+                return schema.validate({ value: 10 });
+            })
+            .then(doc => {
+                assert(doc.value);
+                assert.equal(doc.value, 100);
+            });
+    });
+
+    it('Invalid value in converter', () => {
+        Schema.registerConverter('raiseInvalid', 
+            (v, context) => v < 10 ? v : Promise.reject(context.error.invalidValue));
+        
+        const schema = Schema.create({
+            value: Types.number().convertTo('raiseInvalid')
+        });
+
+        // test invalid value
+        schema.validate({ value: 10 })
+            .catch(errs => {
+                assert(errs);
+                assert.equal(errs.length, 1);
+                const err = errs[0];
+                assert.equal(err.code, 'INVALID_VALUE');
+
+                return schema.validate({ value: 5 });
+            })
+            .then(doc => {
+                assert(doc);
+                assert(doc.value);
+                assert.equal(doc.value, 5);
+            });
+    });
 });

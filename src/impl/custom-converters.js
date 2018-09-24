@@ -1,13 +1,7 @@
 var utils = require('../commons/utils');
 
-// list of registered converters
-const converters = {};
-
 module.exports = {
     process: processPropertyConverters,
-    register: registerConverter,
-    unregister: unregisterConverter,
-    get: getConverter
 };
 
 /**
@@ -41,13 +35,20 @@ function execConverters(convs, index, value, propContext) {
         });
 }
 
+/**
+ * Process a single converter, if available, and return a promise with the new value
+ * @param {} converter 
+ * @param {*} value 
+ * @param {*} propContext 
+ */
 function processConverter(converter, value, propContext) {
     if (!converter) {
         return Promise.resolve(value);
     }
 
     if (utils.isString(converter)) {
-        converter = converters[converter];
+        const session = propContext.session;
+        converter = session.getConverter(converter);
         if (!converter) {
             throw new Error('Converter \'' + converter + '\' not found');
         }
@@ -57,33 +58,7 @@ function processConverter(converter, value, propContext) {
         throw new Error('Converter must be declared as a function');
     }
 
-    const res = converter(value, propContext.doc,
-        propContext.schema, propContext.docSchema);
+    const res = converter(value, propContext);
 
     return Promise.resolve(res);
-}
-
-/**
- * Register a new converter to be used in schemas
- * @param {string} name 
- * @param {object} handler 
- */
-function registerConverter(name, handler) {
-    converters[name] = handler;
-}
-
-/**
- * Unregister a previously registered schema
- * @param {string} name 
- */
-function unregisterConverter(name) {
-    delete converters[name];
-}
-
-/**
- * Return the converter handler of a given schema
- * @param {string} name 
- */
-function getConverter(name) {
-    return converters[name];
 }

@@ -48,11 +48,13 @@ module.exports = class PropertyBuilder {
     }
 
     convertTo(func) {
-        if (!Utils.isFunction(func)) {
+        if (!Utils.isFunction(func) && !Utils.isString(func)) {
             throw new Error('Invalid value for converter. Expected function');
         }
 
-        this.schema.converter = func;
+        this.schema.converters = this.schema.converters || [];
+        this.schema.converters.push(func);
+
         return this;
     }
 };

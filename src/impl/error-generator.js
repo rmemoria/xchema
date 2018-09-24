@@ -6,7 +6,8 @@ const codes = {
     MaxValue: 'MAX_VALUE',
     MinValue: 'MIN_VALUE',
     MaxSize: 'MAX_SIZE',
-    MinSize: 'MIN_SIZE'
+    MinSize: 'MIN_SIZE',
+    invalidValue: 'INVALID_VALUE'
 };
 
 
@@ -28,3 +29,4 @@ module.exports.createMaxValueMsg = prop => createErrorMsg(prop, null, codes.MaxV
 module.exports.createMinValueMsg = prop => createErrorMsg(prop, null, codes.MinValue);
 module.exports.createMaxSizeMsg = prop => createErrorMsg(prop, null, codes.MaxSize);
 module.exports.createMinSizeMsg = prop => createErrorMsg(prop, null, codes.MinSize);
+module.exports.createInvalidValue = prop => createErrorMsg(prop, null, codes.invalidValue);

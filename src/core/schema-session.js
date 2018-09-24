@@ -1,7 +1,5 @@
 const customValidator = require('../impl/custom-validators');
-const customConverter = require('../impl/custom-converters');
 const ObjectSchema = require('./object-schema');
-//const typeHandlers = require('../impl/type-handlers');
 
 /**
  * Schema session defining basic configurations for schemas
@@ -15,11 +13,8 @@ module.exports = class SchemaSession {
             get: customValidator.findValidator
         };
 
-        this.converters = {
-            register: customConverter.register,
-            unregister: customConverter.unregister,
-            get: customConverter.get
-        };
+        // List of registered global converters
+        this.converters = {};
 
         // this.types = typeHandlers.propertyBuilders;
         this.types = [];
@@ -48,6 +43,14 @@ module.exports = class SchemaSession {
 
     getHandler(type) {
         return this.typeHandlers[type];
+    }
+
+    registerConverter(name, handler) {
+        this.converters[name] = handler;
+    }
+
+    getConverter(name) {
+        return this.converters[name];
     }
 };
 

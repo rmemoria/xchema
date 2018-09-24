@@ -72,6 +72,10 @@ module.exports = class PropertyContext {
                 return errorGen.createNotNullMsg(prop);
             }
 
+            static get invalidValue() {
+                return errorGen.createInvalidValue(prop);
+            }
+
             static get invalidType() {
                 return errorGen.createInvalidTypeMsg(prop);
             }

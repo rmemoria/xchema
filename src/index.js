@@ -1,6 +1,9 @@
 const SchemaSession = require('./core/schema-session');
-//const typeHandlers = require('./impl/type-handlers');
 
+/**
+ * Define a global session in order to make it easier
+ * to start with schema validation
+ */
 const globalSession = new SchemaSession();
 
 module.exports = globalSession;
