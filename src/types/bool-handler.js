@@ -1,22 +1,31 @@
-var utils = require('../../commons/utils');
-var errorGen = require('../error-generator');
+var utils = require('../commons/utils');
+const PropertyBuilder = require('../core/property-builder');
 
+module.exports.typeName = 'bool';
 
-module.exports.validate = (propValidator) => {
-    var val = propValidator.value;
+module.exports.validate = (propContext) => {
+    var val = propContext.value;
+
+    if (utils.isEmpty(val)) {
+        return null;
+    }
 
     // check if number is in the correct type
     if (!utils.isBoolean(val)) {
         const newVal = convertValue(val);
         if (newVal === null) {
-            return Promise.reject(errorGen.createInvalidTypeMsg(propValidator.property));
+            return Promise.reject(propContext.error.invalidType);
         }
 
         val = newVal;
     }
 
-    return Promise.resolve(val);
+    return val;
 };
+
+module.exports.PropertyBuilder = class BoolBuilder extends PropertyBuilder {
+};
+
 
 function convertValue(val) {
     const trueValues = ['true', '1', 1];

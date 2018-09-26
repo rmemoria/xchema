@@ -1,25 +1,14 @@
 
 const codes = {
-    valueRequired: 'VALUE_REQUIRED',
+    notNull: 'NOT_NULL',
     invalidProperty: 'INVALID_PROPERTY',
     invalidType: 'INVALID_TYPE',
     MaxValue: 'MAX_VALUE',
     MinValue: 'MIN_VALUE',
     MaxSize: 'MAX_SIZE',
-    MinSize: 'MIN_SIZE'
+    MinSize: 'MIN_SIZE',
+    invalidValue: 'INVALID_VALUE'
 };
-
-function createValueRequiredMsg(prop) {
-    return createErrorMsg(prop, null, codes.valueRequired);
-}
-
-function createInvalidTypeMsg(prop) {
-    return createErrorMsg(prop, null, codes.invalidType);
-}
-
-function createInvalidPropertyMsg(prop) {
-    return createErrorMsg(prop, null, codes.invalidProperty);
-}
 
 
 function createErrorMsg(prop, msg, code) {
@@ -32,10 +21,12 @@ function createErrorMsg(prop, msg, code) {
 
 module.exports.codes = codes;
 module.exports.createErrorMsg = createErrorMsg;
-module.exports.createValueRequiredMsg = createValueRequiredMsg;
-module.exports.createInvalidTypeMsg = createInvalidTypeMsg;
-module.exports.createInvalidPropertyMsg = createInvalidPropertyMsg;
+module.exports.createErrorByCode = (prop, code) => createErrorMsg(prop, null, code);
+module.exports.createNotNullMsg = prop => createErrorMsg(prop, null, codes.notNull);
+module.exports.createInvalidTypeMsg = prop => createErrorMsg(prop, null, codes.invalidType);
+module.exports.createInvalidPropertyMsg = prop => createErrorMsg(prop, null, codes.invalidProperty);
 module.exports.createMaxValueMsg = prop => createErrorMsg(prop, null, codes.MaxValue);
 module.exports.createMinValueMsg = prop => createErrorMsg(prop, null, codes.MinValue);
 module.exports.createMaxSizeMsg = prop => createErrorMsg(prop, null, codes.MaxSize);
 module.exports.createMinSizeMsg = prop => createErrorMsg(prop, null, codes.MinSize);
+module.exports.createInvalidValue = prop => createErrorMsg(prop, null, codes.invalidValue);

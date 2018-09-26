@@ -1,23 +1,20 @@
 var assert = require('assert');
-var validator = require('../src');
+const Schema = require('../src');
+const Types = Schema.types;
 
-const schema1 = {
-    properties: {
-        value: {
-            type: 'bool'
-        }
-    }
-};
+const schema1 = Schema.create({
+    value: Types.bool()
+});
 
 describe('Boolean validator', function() {
 
     it('Valid type', function() {
-        return validator.validate({ value: false }, schema1)
+        return schema1.validate({ value: false })
             .then(doc => {
                 assert(doc);
                 assert.equal(doc.value, false);
 
-                return validator.validate({ value: true }, schema1);
+                return schema1.validate({ value: true });
             })
             .then(doc => {
                 assert(doc);
@@ -26,7 +23,7 @@ describe('Boolean validator', function() {
     });
 
     it('Invalid type', function() {
-        validator.validate({ value: 'x' }, schema1)
+        schema1.validate({ value: 'x' })
             .catch(errors => {
                 assert(errors);
                 assert.equal(errors.length, 1);
@@ -37,13 +34,13 @@ describe('Boolean validator', function() {
         const trueValues = ['true', 'True', 'TRUE', '1', 1];
         const falseValues = ['false', 'False', 'FALSE', '0', 0];
 
-        let promises = trueValues.map(it => validator.validate({ value: it }, schema1)
+        let promises = trueValues.map(it => schema1.validate({ value: it })
             .then(doc => {
                 assert(doc);
                 assert.equal(doc.value, true);
             }));
 
-        promises = promises.concat(falseValues.map(it => validator.validate({ value: it }, schema1)
+        promises = promises.concat(falseValues.map(it => schema1.validate({ value: it })
             .then(doc => {
                 assert(doc);
                 assert.equal(doc.value, false);

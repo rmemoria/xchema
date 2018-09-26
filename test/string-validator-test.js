@@ -1,16 +1,14 @@
 var assert = require('assert');
-var validator = require('../src');
+var Schema = require('../src');
 
-const authSchema = {
-    properties: {
-        username: {
-            type: 'string',
-            required: true,
-            max: 10,
-            min: 3
-        }
+const authSchema = Schema.create({
+    username: {
+        type: 'string',
+        required: true,
+        max: 10,
+        min: 3
     }
-};
+});
 
 describe('String Validator', function() {
 
@@ -19,7 +17,7 @@ describe('String Validator', function() {
             username: 12
         };
 
-        validator.validate(data, authSchema)
+        authSchema.validate(data, authSchema)
             .catch(errors => {
                 assert.equal(errors.length, 1);
                 const err = errors[0];
@@ -30,16 +28,14 @@ describe('String Validator', function() {
     });
 
     it('Trim spaces', function() {
-        const schema = {
-            properties: {
-                name: {
-                    type: 'string',
-                    trim: true
-                }
+        const schema = Schema.create({
+            name: {
+                type: 'string',
+                trim: true
             }
-        };
+        });
 
-        validator.validate({ name: ' Rio '}, schema)
+        schema.validate({ name: ' Rio '})
             .then(doc => {
                 assert(doc);
                 assert(doc.name);
@@ -48,7 +44,7 @@ describe('String Validator', function() {
     });
 
     it('Max size', function() {
-        validator.validate({ username: 'ThisIsALongStringObject' }, authSchema)
+        authSchema.validate({ username: 'ThisIsALongStringObject' })
             .catch(errors => {
                 assert(errors);
                 assert.equal(1, errors.length);
@@ -59,7 +55,7 @@ describe('String Validator', function() {
     });
 
     it('Min size', function() {
-        validator.validate({ username: 'ab' }, authSchema)
+        authSchema.validate({ username: 'ab' }, authSchema)
             .catch(errors => {
                 assert(errors);
                 assert.equal(1, errors.length);

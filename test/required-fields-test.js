@@ -1,23 +1,19 @@
 const assert = require('assert');
-const validator = require('../src');
+const Schema = require('../src');
+const Types = Schema.types;
 const utils = require('../src/commons/utils');
 
-const schema = {
-    properties: {
-        name1: {
-            type: 'string'
-        },
-        name2: {
-            type: 'string',
-            required: (v, doc) => utils.isEmpty(doc.name1)
-        }
-    }
-};
+const schema = Schema.create({
+    name1: Types.string(),
+    name2: Types.string()
+        .notNull((v, doc) => utils.isEmpty(doc.name1))
+});
+
 
 describe('Required fields', () => {
 
     it('Conditional requirement', () => {
-        return validator.validate({ name1: 'Test' }, schema)
+        return schema.validate({ name1: 'Test' })
             .then(doc => {
                 assert(doc);
                 assert(doc.name1);

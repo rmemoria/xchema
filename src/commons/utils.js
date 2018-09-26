@@ -168,18 +168,14 @@ module.exports.isFunction = function(obj) {
  * @param  {[type]}  obj [description]
  * @return {Boolean}     true if value is a string, otherwise return false
  */
-module.exports.isString = function(obj) {
-    return typeof obj === 'string';
-};
+module.exports.isString = obj => typeof obj === 'string';
 
 /**
  * Check if a value is a number
  * @param {any} value value to be tested if is a number
  */
-module.exports.isNumber = function(value) {
-    return typeof value === 'number';
-};
+module.exports.isNumber = value => typeof value === 'number';
 
-module.exports.isBoolean = function(value) {
-    return typeof value === 'boolean';
-};
+module.exports.isBoolean = value => typeof value === 'boolean';
+
+module.exports.isDate = value => value instanceof Date;
