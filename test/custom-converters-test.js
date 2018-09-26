@@ -80,7 +80,7 @@ describe('Custom converters', () => {
             });
     });
 
-    it('Invalid value in converter', () => {
+    it('Invalid value in global converter', () => {
         Schema.registerConverter('raiseInvalid', 
             (v, context) => v < 10 ? v : Promise.reject(context.error.invalidValue));
         

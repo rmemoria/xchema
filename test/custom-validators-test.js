@@ -121,14 +121,14 @@ describe('Custom validators', () => {
             });
     });
 
-    it('Register/use/unregister validator', () => {
+    it('Global validator', () => {
         const errMsg = 'Value must be less than 10';
 
-        Schema.validators.register('smallNumber', 
-            value => value > 10 ? errMsg : null);
+        Schema.registerValidator('smallNumber', value => value <= 10)
+            .withErrorMessage(errMsg);
         
         const schema = Schema.create({
-            value: Types.number().validIf('smallnumber')
+            value: Types.number().validIf('smallNumber')
         });
 
         return schema.validate({ value: 20 })
@@ -140,24 +140,12 @@ describe('Custom validators', () => {
                 assert.equal(err.message, errMsg);
 
                 // check if get returns the validator
-                assert(Schema.validators.get('smallNumber'));
-
-                // unregister and test if it was removed
-                Schema.validators.unregister('smallNumber');
-                assert(!Schema.validators.get('smallNumber'));
-
-                // test validation of the schema without the validator
-                // it must generate an unexpected error
-                return schema.validate({ value: 20 });
-            })
-            .catch(err => {
-                assert(err instanceof Error);
+                assert(Schema.getValidator('smallNumber'));
             });
     });
 
     it('Register complex validator', () => {
-        Schema.validators
-            .register('smallNumber', value => value <= 10)
+        Schema.registerValidator('smallNumber', value => value <= 10)
             .withErrorCode('NOT_SMALL_NUMBER');
 
         const schema = Schema.create({

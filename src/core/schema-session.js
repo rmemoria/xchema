@@ -1,5 +1,6 @@
-const customValidator = require('../impl/custom-validators');
+//const customValidator = require('../impl/custom-validators');
 const ObjectSchema = require('./object-schema');
+const ValidatorBuilder = require('../impl/validator-builder');
 
 /**
  * Schema session defining basic configurations for schemas
@@ -7,11 +8,13 @@ const ObjectSchema = require('./object-schema');
 module.exports = class SchemaSession {
 
     constructor() {
-        this.validators = {
-            register: customValidator.registerValidator,
-            unregister: customValidator.unregisterValidator,
-            get: customValidator.findValidator
-        };
+        // list of registered validators
+        this.validators = {};
+        // this.validators = {
+        //     register: customValidator.registerValidator,
+        //     unregister: customValidator.unregisterValidator,
+        //     get: customValidator.findValidator
+        // };
 
         // List of registered global converters
         this.converters = {};
@@ -51,6 +54,22 @@ module.exports = class SchemaSession {
 
     getConverter(name) {
         return this.converters[name];
+    }
+
+    /**
+     * Register a new custom validator to be used throughout the implementation
+     * @param {string} name 
+     * @param {function} handler a function that returns true if the validation was successfull
+     */
+    registerValidator(name, handler) {
+        const builder = new ValidatorBuilder();
+        const validator = builder.bind(handler);
+        this.validators[name] = validator;
+        return builder;
+    }
+
+    getValidator(name) {
+        return this.validators[name];
     }
 };
 

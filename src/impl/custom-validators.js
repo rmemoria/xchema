@@ -2,9 +2,9 @@ const utils = require('../commons/utils');
 const errorGen = require('./error-generator');
 const propertyResolver = require('./property-resolver');
 const util = require('util');
-const ValidatorBuilder = require('./validator-builder');
+//const ValidatorBuilder = require('./validator-builder');
 
-const validators = {};
+//const validators = {};
 
 /**
  * Custom validators are functions defined by the user inside a schema in property or 
@@ -12,9 +12,9 @@ const validators = {};
  */
 module.exports = {
     processCustomValidators: processCustomValidators,
-    registerValidator: registerValidator,
-    findValidator: findValidator,
-    unregisterValidator: unregisterValidator
+    // registerValidator: registerValidator,
+    // findValidator: findValidator,
+    // unregisterValidator: unregisterValidator
 };
 
 /**
@@ -22,22 +22,22 @@ module.exports = {
  * @param {string} name 
  * @param {function} handler a function that returns true if the validation was successfull
  */
-function registerValidator(name, handler) {
-    const builder = new ValidatorBuilder();
-    const validator = builder.bind(handler);
-    validators[name] = validator;
-    return builder;
-}
+// function registerValidator(name, handler) {
+//     const builder = new ValidatorBuilder();
+//     const validator = builder.bind(handler);
+//     validators[name] = validator;
+//     return builder;
+// }
 
-function findValidator(name) {
-    return validators[name];
-}
+// function findValidator(name) {
+//     return validators[name];
+// }
 
-function unregisterValidator(name) {
-    const validator = validators[name];
-    delete validators[name];
-    return validator;
-}
+// function unregisterValidator(name) {
+//     const validator = validators[name];
+//     delete validators[name];
+//     return validator;
+// }
 
 function processCustomValidators(propContext) {
     const schema = propContext.schema;
@@ -57,7 +57,7 @@ function processCustomValidators(propContext) {
 
 function callValidator(propContext, validator) {
     if (utils.isString(validator)) {
-        const v = validators[validator];
+        const v = propContext.session.getValidator(validator);
         if (!v) {
             throw new Error('Validator \'' + validator + '\' not found');
         }
