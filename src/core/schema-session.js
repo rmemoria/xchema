@@ -1,4 +1,3 @@
-//const customValidator = require('../impl/custom-validators');
 const ObjectSchema = require('./object-schema');
 const ValidatorBuilder = require('../impl/validator-builder');
 
@@ -10,11 +9,6 @@ module.exports = class SchemaSession {
     constructor() {
         // list of registered validators
         this.validators = {};
-        // this.validators = {
-        //     register: customValidator.registerValidator,
-        //     unregister: customValidator.unregisterValidator,
-        //     get: customValidator.findValidator
-        // };
 
         // List of registered global converters
         this.converters = {};
@@ -24,6 +18,15 @@ module.exports = class SchemaSession {
         this.typeHandlers = {};
 
         registerDefaultHandlers(this);
+    }
+
+    cloneSession() {
+        const newSession = new SchemaSession();
+        newSession.validators = Object.assign({}, this.validators);
+        newSession.converters = Object.assign({}, this.converters);
+        newSession.types = this.types.slice();
+        newSession.typeHandlers = Object.assign({}, this.typeHandlers);
+        return newSession;
     }
 
     /**
@@ -57,6 +60,13 @@ module.exports = class SchemaSession {
     }
 
     /**
+     * Return the list of converters registered in the session
+     */
+    getConverters() {
+        return Object.keys(this.converters);
+    }
+
+    /**
      * Register a new custom validator to be used throughout the implementation
      * @param {string} name 
      * @param {function} handler a function that returns true if the validation was successfull
@@ -70,6 +80,13 @@ module.exports = class SchemaSession {
 
     getValidator(name) {
         return this.validators[name];
+    }
+
+    /**
+     * Return the list of validators registered in the session
+     */
+    getValidators() {
+        return Object.keys(this.validators);
     }
 };
 

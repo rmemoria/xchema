@@ -48,10 +48,11 @@ function processConverter(converter, value, propContext) {
 
     if (utils.isString(converter)) {
         const session = propContext.session;
-        converter = session.getConverter(converter);
-        if (!converter) {
+        const conv = session.getConverter(converter);
+        if (!conv) {
             throw new Error('Converter \'' + converter + '\' not found');
         }
+        converter = conv;
     }
 
     if (!utils.isFunction(converter)) {

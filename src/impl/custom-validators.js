@@ -2,9 +2,6 @@ const utils = require('../commons/utils');
 const errorGen = require('./error-generator');
 const propertyResolver = require('./property-resolver');
 const util = require('util');
-//const ValidatorBuilder = require('./validator-builder');
-
-//const validators = {};
 
 /**
  * Custom validators are functions defined by the user inside a schema in property or 
@@ -12,32 +9,8 @@ const util = require('util');
  */
 module.exports = {
     processCustomValidators: processCustomValidators,
-    // registerValidator: registerValidator,
-    // findValidator: findValidator,
-    // unregisterValidator: unregisterValidator
 };
 
-/**
- * Register a new custom validator to be used throughout the implementation
- * @param {string} name 
- * @param {function} handler a function that returns true if the validation was successfull
- */
-// function registerValidator(name, handler) {
-//     const builder = new ValidatorBuilder();
-//     const validator = builder.bind(handler);
-//     validators[name] = validator;
-//     return builder;
-// }
-
-// function findValidator(name) {
-//     return validators[name];
-// }
-
-// function unregisterValidator(name) {
-//     const validator = validators[name];
-//     delete validators[name];
-//     return validator;
-// }
 
 function processCustomValidators(propContext) {
     const schema = propContext.schema;
