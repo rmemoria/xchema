@@ -9,4 +9,35 @@ An extensible object validator and converter for NodeJS. Main features are:
 
 ## Usage
 
-TO BE DONE
+ ```javascript
+ // required library
+ const Schema = require('object-validator');
+ // shortcut for easier schema declaration
+ const Types = Schema.types;
+
+ // create a schema to validate an object
+ // with 2 properties - name and age
+ const sc = Schema.create({
+    name: Types.string()
+        .notNull()
+        .min(3)
+        .max(50),
+    age: Types.number()
+        .min(18)
+        .max(120);
+ });
+
+ // validate an object
+ sc.validate({ name: 'Ricardo', age: 22 })
+    // it is promise based
+    .then(doc => {
+        // a new validated object is returned
+        assert(doc);
+        assert.equal(doc.name, 'Ricardo');
+        assert.equal(doc.age, 22);
+    })
+    .catch(errs => {
+        // catch any validation error
+        ...
+    });
+ ```
