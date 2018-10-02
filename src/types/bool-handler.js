@@ -14,7 +14,7 @@ module.exports.validate = (propContext) => {
     if (!utils.isBoolean(val)) {
         const newVal = convertValue(val);
         if (newVal === null) {
-            return Promise.reject(propContext.error.invalidType);
+            return Promise.reject(propContext.error.invalidValue);
         }
 
         val = newVal;

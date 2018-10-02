@@ -47,7 +47,7 @@ describe('Schema session test', () => {
 
         // make sure the validator and converter doesn't exist in the default session
         const schema = Schema.create({
-            value: Types.string().convertTo('test')
+            value: Types.string().convertAfter('test')
         });
 
         schema.validate({ value: 'banana' })

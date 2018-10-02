@@ -22,7 +22,7 @@ describe('String Validator', function() {
                 assert.equal(errors.length, 1);
                 const err = errors[0];
                 assert.equal(err.property, 'username');
-                assert.equal(err.code, 'INVALID_TYPE');
+                assert.equal(err.code, 'INVALID_VALUE');
                 done();
             });
     });

@@ -8,7 +8,7 @@ module.exports.validate = (propContext) => {
     let vals = propContext.value;
 
     if (!utils.isArray(vals)) {
-        return Promise.reject(propContext.error.invalidType);
+        return Promise.reject(propContext.error.invalidValue);
     }
 
     const itemSchema = resolveItemSchema(propContext.schema.itemSchema);

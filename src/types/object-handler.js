@@ -12,7 +12,7 @@ module.exports.validate = (propContext) => {
     }
 
     if (!utils.isObject(value)) {
-        return Promise.reject(propContext.error.invalidType);
+        return Promise.reject(propContext.error.invalidValue);
     }
 
     const prefix = propContext.property ? propContext.property + '.' : '';

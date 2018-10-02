@@ -12,15 +12,14 @@ module.exports.validate = (propContext) => {
 
     if (!utils.isDate(val)) {
         // check if number is in the correct type
-        if (utils.isString(val) || utils.is) {
-            const newVal = convertValue(val);
-            if (newVal === null) {
-                return Promise.reject(propContext.error.invalidType);
+        if (utils.isString(val) || utils.isNumber(val)) {
+            const newVal = new Date(val);
+            if (isNaN(newVal)) {
+                return Promise.reject(propContext.error.invalidValue);
             }
 
             val = newVal;
         }
-
     }
 
     return val;
@@ -29,32 +28,4 @@ module.exports.validate = (propContext) => {
 
 module.exports.PropertyBuilder = class extends PropertyBuilder {
 
-    min(val) {
-        this.schema.min = val;
-        return this;
-    }
-
-    max(val) {
-        this.schema.max = val;
-        return this;
-    }
 };
-
-function convertValue(val) {
-    const trueValues = ['true', '1', 1];
-    const falseValues = ['false', '0', 0];
-
-    if (utils.isString(val)) {
-        val = val.toLowerCase();
-    }
-
-    if (trueValues.includes(val)) {
-        return true;
-    }
-
-    if (falseValues.includes(val)) {
-        return false;
-    }
-
-    return null;
-}

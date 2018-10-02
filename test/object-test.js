@@ -60,7 +60,7 @@ describe('Object validator', () => {
                 assert.equal(errs.length, 1);
                 const err = errs[0];
                 assert.equal(err.property, 'prop1.prop2.prop3');
-                assert.equal(err.code, 'INVALID_TYPE');
+                assert.equal(err.code, 'INVALID_VALUE');
 
                 return schema.validate({ prop1: { }});
             })
@@ -89,7 +89,7 @@ describe('Object validator', () => {
                 assert(errs.length, 1);
                 const err = errs[0];
                 assert(err.property, 'address');
-                assert(err.code, 'INVALID_TYPE');
+                assert(err.code, 'INVALID_VALUE');
 
                 return schema.validate({ address: { }});
             })

@@ -16,7 +16,7 @@ module.exports.validate = (propContext) => {
         if (utils.isString(val) && !isNaN(val)) {
             val = Number(val);
         } else {
-            return Promise.reject(propContext.error.invalidType);
+            return Promise.reject(propContext.error.invalidValue);
         }
     }
 

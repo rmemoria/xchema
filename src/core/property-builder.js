@@ -47,14 +47,35 @@ module.exports = class PropertyBuilder {
         return this;
     }
 
-    convertTo(func) {
-        if (!Utils.isFunction(func) && !Utils.isString(func)) {
-            throw new Error('Invalid value for converter. Expected function');
-        }
+    /**
+     * Add a converter to be called before the validation of the property
+     * @param {Function|String} func 
+     */
+    convertBefore(func) {
+        validateConverter(func);
 
-        this.schema.converters = this.schema.converters || [];
-        this.schema.converters.push(func);
+        this.schema.convertersBefore = this.convertersBefore || [];
+        this.schema.convertersBefore.push(func);
+
+        return this;
+    }
+
+    /**
+     * Add a converter to be called after the validation of the property
+     * @param {Function|String} func 
+     */
+    convertAfter(func) {
+        validateConverter(func);
+
+        this.schema.convertersAfter = this.schema.convertersAfter || [];
+        this.schema.convertersAfter.push(func);
 
         return this;
     }
 };
+
+function validateConverter(conv) {
+    if (!Utils.isFunction(conv) && !Utils.isString(conv)) {
+        throw new Error('Invalid value for converter. Expected function or registered converter name');
+    }
+}

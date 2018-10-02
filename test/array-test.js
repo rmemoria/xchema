@@ -99,7 +99,7 @@ describe('Array validator', () => {
                 assert.equal(errs.length, 1);
                 const err = errs[0];
                 assert.equal(err.property, 'values[2]');
-                assert.equal(err.code, 'INVALID_TYPE');
+                assert.equal(err.code, 'INVALID_VALUE');
             });
     });
 

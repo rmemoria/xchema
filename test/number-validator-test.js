@@ -22,6 +22,9 @@ describe('Number validator', function() {
             .catch(errors => {
                 assert(errors);
                 assert.equal(errors.length, 1);
+                const err = errors[0];
+                assert.equal(err.property, 'value');
+                assert.equal(err.code, 'INVALID_VALUE');
             });
     });
 

@@ -45,6 +45,7 @@ module.exports = class SchemaSession {
         } else {
             registerTypeNameAndHandler(this, typeName, handler);
         }
+        return this;
     }
 
     getHandler(type) {
@@ -53,6 +54,7 @@ module.exports = class SchemaSession {
 
     registerConverter(name, handler) {
         this.converters[name] = handler;
+        return this;
     }
 
     getConverter(name) {
@@ -107,4 +109,5 @@ function registerDefaultHandlers(session) {
     session.registerHandler(require('../types/bool-handler'));
     session.registerHandler(require('../types/array-handler'));
     session.registerHandler(require('../types/object-handler'));
+    session.registerHandler(require('../types/date-handler'));
 }

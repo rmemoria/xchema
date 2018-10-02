@@ -1,7 +1,8 @@
 var utils = require('../commons/utils');
 
 module.exports = {
-    process: processPropertyConverters,
+    processAfter: cntxt => processPropertyConverters(cntxt, false),
+    processBefore: cntxt => processPropertyConverters(cntxt, true)
 };
 
 /**
@@ -9,19 +10,16 @@ module.exports = {
  * @param {PropertyContext} propContext object containing all information about the property being validated
  * @returns the new value, or the original value, in case there is no converter
  */
-function processPropertyConverters(propContext) {
+function processPropertyConverters(propContext, isBefore) {
     const schema = propContext.schema;
 
-    // execute the single converter, if available
-    return processConverter(schema.converter, propContext.value, propContext)
-        .then(newValue => {
-            // check converters are available
-            if (schema.converters) {
-                return execConverters(schema.converters, 0, newValue, propContext);
-            } else {
-                return newValue;
-            }
-        });
+    const converters = isBefore ? schema.convertersBefore : schema.convertersAfter;
+
+    if (converters) {
+        return execConverters(converters, 0, propContext.value, propContext);
+    } else {
+        return propContext.value;
+    }
 }
 
 function execConverters(convs, index, value, propContext) {

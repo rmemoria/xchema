@@ -39,7 +39,11 @@ module.exports = class PropertyContext {
             throw new Error('Handler not found for type \'' + this.schema.type + '\'');
         }
     
-        return Promise.resolve(handler.validate(this))
+        return Promise.resolve(customConverters.processBefore(this))
+            .then(newval => {
+                this.value = newval;
+                return Promise.resolve(handler.validate(this));
+            })
             .then(newval => {
                 this.value = newval;
                 // call custom validators
@@ -49,7 +53,7 @@ module.exports = class PropertyContext {
                 }
                 this.value = newval;
                 // call converters
-                return customConverters.process(this);
+                return customConverters.processAfter(this);
             });
     }
 
@@ -74,10 +78,6 @@ module.exports = class PropertyContext {
 
             static get invalidValue() {
                 return errorGen.createInvalidValue(prop);
-            }
-
-            static get invalidType() {
-                return errorGen.createInvalidTypeMsg(prop);
             }
 
             static get maxSize() {

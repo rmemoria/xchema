@@ -10,7 +10,7 @@ module.exports.validate = (propContext) => {
     }
 
     if (!utils.isString(val)) {
-        return Promise.reject(propContext.error.invalidType);
+        return Promise.reject(propContext.error.invalidValue);
     }
 
     const schema = propContext.schema;
