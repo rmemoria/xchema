@@ -81,7 +81,7 @@ They are available as property builders in `Schema.types` or, if declaring schem
 name: Types.date()
 ```
 
-and
+or
 
 ```javascript
 name: {
@@ -99,7 +99,7 @@ Create a new schema
 ```javascript
 const Schema = require('obj-validator');
 
-Schema.create({ login: Types.string().notNull() });
+const mySchema = Schema.create({ login: Types.string().notNull() });
 ```
 
 This object can also be used to register new types, global validators and global converters (described below).
@@ -168,7 +168,7 @@ The `code` property is a way of expose a fixed and standard code for programatic
 
 ## Custom validator
 
-You can declare custom validators in property and object level. These validators are functions that will validate the property or object value.
+You can declare custom validators at property and object level. They are functions that will check if the property or object value return true for valid values, or false for invalid values.
 
 This schema test if there is any whitespace in the login:
 
@@ -189,7 +189,45 @@ sc.validate({ login: 'Invalid login' })
     })
     .catch(errs => {
         // errs is an array with validation error objects
-        // [ { property: 'login', message: null, code: 'INVALID' }]
+        // [ { property: 'login', message: null, code: 'INVALID_VALUE' }]
     });
 ```
 
+You can specify custom messages and codes to be used in vadation errors:
+
+```javascript
+const sc = Schema.create({
+    login: Type.string()
+        .validIf(val => val.indexOf(' ') === -1)
+        .withErrorMessage('Cannot contain whitespaces')
+        .withErrorCode('INVALID_LOGIN')
+});
+```
+
+If your validation requires asynchronous calls, just return a promise.
+
+```javascript
+    .validIf(val => new Promise((resolve, reject) => {
+        // execute asynchronous calls
+    }));
+```
+
+### Global custom validators
+
+TO BE DONE
+
+## Converters
+
+TO BE DONE
+
+### Global converters
+
+TO BE DONE
+
+## Implementing new property types
+
+TO BE DONE
+
+### Property builders
+
+TO BE DONE
