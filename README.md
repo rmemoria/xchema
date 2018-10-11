@@ -91,6 +91,65 @@ name: {
 
 New types and property builders can be declared (see below).
 
+## Standard Property Builders
+
+The library comes with a set of supported types and its property builders in `Schema.Types` property:
+
+### All types
+
+These properties are common to all types:
+* `.notNull(value)` - Indicate if property is required or not. Value can be a boolean value or a function that will return a boolean value. The function will be resolved during property validation;
+* `.label(value)` - A description of the property that can be used in schema report generation, UI, etc. Doesn't play any role during validation;
+* `.validIf(func)` - Specify a function that will check if property value is valid;
+* `.defaultValue(val)` - Specify a default value, in case the property is not informed or contain a null value. Value can be any value, including a function;
+* `.convertBefore(func)` - Specify a function (or the name of a global converter) that will return a new value for the property value. This function is called before validation is done;
+* `.convertAfter(func)` - Specify a function (or the name of a global converter) that will return a new value for the property. This function is called after validation is done;
+* `options(value)` - Define the possible values for a property. Value may be an array or a function;
+
+### string()
+* `.max(value)` - Set the maximum length of a string. Value can be a positive number or a function that returns a number;
+* `.min(value)` - Set the minimum length of a string. Value can be a positive number or a function that returns a number;
+* `.trim()` - Remove any extra space around the string;
+* `.toUpperCase()` - Convert the string value to upper case;
+* `.toLowerCase()` - Convert the string value to lower case;
+* `.match(pattern)` - Check if string matches the pattern;
+* `.endsWith(str)` - Check if string ends the given str value;
+* `.startsWith(str)` - Check if string starts the given str value;
+
+### number()
+
+* `.max(value)` - Set the maximum value for a number. It can be a number or a function;
+* `.min(value)` - Set the minimum value for a number. It can be a number or a function;
+
+### bool()
+
+No extra builder available, just the ones available for all types.
+
+### date()
+
+The date type accepts dates in the ISO format, `Date` objects or numbers.
+
+* `futureOnly()` - Only allow future dates;
+* `pastOnly()` - Only allow past dates;
+* `min(value)` - Set the minimum date allowed. Value can be a date or a function;
+* `max(value)` - Set the maximum date allowed. Value can be a date or a function;
+* `removeTime()` - Remove the time component of the `Date` object, leaving just the date part. Actually the time part is set to 00:00:00;
+
+
+### object(schema)
+
+Validate properties that are simple objects. The `schema` argument is the same schema definition used in `Schema.create` function.
+
+* `allowExtraProperties()` - Specify that properties not defined in the schema are accepted and not modified;
+* `removeExtraProperties()` - Accept extra properties but remove them from the object;
+* `invalidExtraProperties()` - Default. Properties not defined in schema will generate a validation error;
+
+### array()
+
+* `of(value)` - Set the array type as any of the types available in `Schema.Types`.
+* `max(value)` - Set the maximum number of elements in the array;
+* `min(value)` - Set the mininum number of elements in the array;
+
 ## Global Schema object
 
 New schema validators can be created with the global `Schema` object. For example:
