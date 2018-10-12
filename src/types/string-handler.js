@@ -27,6 +27,14 @@ module.exports.validate = (propContext) => {
         return Promise.reject(propContext.error.minSize);
     }
 
+    if (schema.toLowerCase) {
+        val = val.toLowerCase();
+    }
+
+    if (schema.toUpperCase) {
+        val = val.toUpperCase();
+    }
+
     return val;
 };
 
@@ -58,6 +66,16 @@ module.exports.PropertyBuilder = class StringBuilder extends PropertyBuilder {
             }
             this.schema.trim = false;
         }
+        return this;
+    }
+
+    toUpperCase(val = true) {
+        this.schema.toUpperCase = val;
+        return this;
+    }
+
+    toLowerCase(val = true) {
+        this.schema.toLowerCase = val;
         return this;
     }
 };

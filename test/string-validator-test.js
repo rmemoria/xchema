@@ -1,5 +1,6 @@
 var assert = require('assert');
 var Schema = require('../src');
+const Types = Schema.types;
 
 const authSchema = Schema.create({
     username: {
@@ -12,18 +13,17 @@ const authSchema = Schema.create({
 
 describe('String Validator', function() {
 
-    it('Property with invalid type', function(done) {
+    it('Property with invalid type', function() {
         const data = {
             username: 12
         };
 
-        authSchema.validate(data, authSchema)
+        return authSchema.validate(data, authSchema)
             .catch(errors => {
                 assert.equal(errors.length, 1);
                 const err = errors[0];
                 assert.equal(err.property, 'username');
                 assert.equal(err.code, 'INVALID_VALUE');
-                done();
             });
     });
 
@@ -35,7 +35,7 @@ describe('String Validator', function() {
             }
         });
 
-        schema.validate({ name: ' Rio '})
+        return schema.validate({ name: ' Rio '})
             .then(doc => {
                 assert(doc);
                 assert(doc.name);
@@ -44,7 +44,7 @@ describe('String Validator', function() {
     });
 
     it('Max size', function() {
-        authSchema.validate({ username: 'ThisIsALongStringObject' })
+        return authSchema.validate({ username: 'ThisIsALongStringObject' })
             .catch(errors => {
                 assert(errors);
                 assert.equal(1, errors.length);
@@ -55,13 +55,39 @@ describe('String Validator', function() {
     });
 
     it('Min size', function() {
-        authSchema.validate({ username: 'ab' }, authSchema)
+        return authSchema.validate({ username: 'ab' }, authSchema)
             .catch(errors => {
                 assert(errors);
                 assert.equal(1, errors.length);
                 const err = errors[0];
                 assert.equal(err.property, 'username');
                 assert.equal(err.code, 'MIN_SIZE');
+            });
+    });
+
+    it('Upper case', () => {
+        const sc = Schema.create({
+            login: Types.string().notNull().toUpperCase()
+        });
+
+        return sc.validate({ login: 'Ricardo' })
+            .then(doc => {
+                assert(doc);
+                assert(doc.login);
+                assert.equal(doc.login, 'RICARDO');
+            });
+    });
+
+    it('Lower case', () => {
+        const sc = Schema.create({
+            login: Types.string().notNull().toLowerCase()
+        });
+
+        return sc.validate({ login: 'Ricardo' })
+            .then(doc => {
+                assert(doc);
+                assert(doc.login);
+                assert.equal(doc.login, 'ricardo');
             });
     });
 }); 
