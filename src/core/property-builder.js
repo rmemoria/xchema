@@ -72,6 +72,15 @@ module.exports = class PropertyBuilder {
 
         return this;
     }
+
+    /**
+     * Return the list of possible values for the property
+     * @param {Function|Array} val 
+     */
+    options(val) {
+        this.schema.options = val;
+        return this;
+    }
 };
 
 function validateConverter(conv) {

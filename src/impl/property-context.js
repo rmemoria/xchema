@@ -1,5 +1,4 @@
 var utils = require('../commons/utils');
-//const typeHandlers = require('./type-handlers');
 const propertyResolver = require('./property-resolver');
 const errorGen = require('./error-generator');
 const customValidators = require('./custom-validators');
@@ -45,6 +44,10 @@ module.exports = class PropertyContext {
                 return Promise.resolve(handler.validate(this));
             })
             .then(newval => {
+                // check options
+                if (!isInOptions(this)) {
+                    return Promise.reject(this.error.invalidValue);
+                }
                 this.value = newval;
                 // call custom validators
                 const err = customValidators.processCustomValidators(this);
@@ -98,6 +101,22 @@ module.exports = class PropertyContext {
         };
     }
 };
+
+/**
+ * Check if value is in options (if options available)
+ * @param {PropertyContext} context 
+ */
+function isInOptions(context) {
+    const schema = context.schema;
+
+    if (!schema.options) {
+        return true;
+    }
+
+    const lst = propertyResolver(schema.options, context);
+
+    return lst.indexOf(context.value) >= 0;
+}
 
 /**
  * Return the default value, or the own value of the property
