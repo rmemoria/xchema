@@ -2,51 +2,46 @@ const assert = require('assert');
 const Schema = require('../src'), Types = Schema.types;
 
 
-describe('Date validator', function() {
+describe('Date validator', () => {
 
-    it('Valid type', function() {
+    it('Valid type', async () => {
         const sc = Schema.create({
             value: Types.date()
         });
 
         const dt = new Date();
 
-        return sc.validate({ value: dt })
-            .then(doc => {
-                assert(doc);
-                assert.equal(dt, doc.value);
+        var doc = await sc.validate({ value: dt });
+        assert(doc);
+        assert.equal(dt, doc.value);
 
-                return sc.validate({ value: '2018-01-01T00:00:00'});
-            })
-            .then(doc => {
-                assert(doc);
-                assert(doc.value);
-                assert(doc.value instanceof Date);
+        doc = await sc.validate({ value: '2018-01-01T00:00:00'});
+        assert(doc);
+        assert(doc.value);
+        assert(doc.value instanceof Date);
 
-                return sc.validate({ value: dt.getTime() });
-            })
-            .then(doc => {
-                assert(doc);
-                assert(doc.value);
-                assert.equal(doc.value.getTime(), dt.getTime());
-            });
+        doc = await sc.validate({ value: dt.getTime() });
+        assert(doc);
+        assert(doc.value);
+        assert.equal(doc.value.getTime(), dt.getTime());
     });
 
-    it('Invalid type', () => {
+    it('Invalid type', async () => {
         const sc = Schema.create({
             value: {
                 type: 'date'
             }
         });
 
-        return sc.validate({ value: 'aa-bb-cc' })
-            .catch(errs => {
-                assert(errs);
-                assert.equal(errs.length, 1);
-                const err = errs[0];
-                assert.equal(err.property, 'value');
-                assert.equal(err.code, 'INVALID_VALUE');
-            });
+        try {
+            await sc.validate({ value: 'aa-bb-cc' });
+        } catch (errs) {
+            assert(errs);
+            assert.equal(errs.length, 1);
+            const err = errs[0];
+            assert.equal(err.property, 'value');
+            assert.equal(err.code, 'INVALID_VALUE');
+        }
     });
 
     it('Custom converter', () => {

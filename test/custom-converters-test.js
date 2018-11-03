@@ -60,24 +60,20 @@ describe('Custom converters', () => {
             });
     });
 
-    it('Global converter', () => {
+    it('Global converter', async () => {
         Schema.registerConverter('multi_10', v => v < 10 ? v : v * 10);
 
         const schema = Schema.create({
             value: Types.number().convertAfter('multi_10')
         });
 
-        schema.validate({ value: 5 })
-            .then(doc => {
-                assert(doc.value);
-                assert.equal(doc.value, 5);
+        let doc = await schema.validate({ value: 5 });
+        assert(doc.value);
+        assert.equal(doc.value, 5);
 
-                return schema.validate({ value: 10 });
-            })
-            .then(doc => {
-                assert(doc.value);
-                assert.equal(doc.value, 100);
-            });
+        doc = await schema.validate({ value: 10 });
+        assert(doc.value);
+        assert.equal(doc.value, 100);
     });
 
     it('Invalid value in global converter', () => {
@@ -141,7 +137,7 @@ describe('Custom converters', () => {
 
     // test a converter that transform an id to an object entity
     // with validation of invalid ids
-    it('Convert from ID to entity', () => {
+    it('Convert from ID to entity', async () => {
         const entities = {
             '1': { id: 1, name: 'Amazon' },
             '2': { id: 2, name: 'Nile' },
@@ -165,31 +161,28 @@ describe('Custom converters', () => {
             entity: Types.number().convertAfter('idToEntity')
         });
 
-        return sc.validate({ entity: '1' })
-            .then(doc => {
-                assert(doc);
-                assert(doc.entity);
-                assert.equal(doc.entity.id, 1);
-                assert.equal(doc.entity.name, 'Amazon');
-
-                return sc.validate({ entity: 2 });
-            })
-            .then(doc => {
-                assert(doc);
-                assert(doc.entity);
-                assert.equal(doc.entity.id, 2);
-                assert.equal(doc.entity.name, 'Nile');
-
-                return sc.validate({ entity: 5 });
-            })
-            .catch(errs => {
-                assert(errs);
-                assert.equal(errs.length, 1);
-                
-                const err = errs[0];
-                assert(err);
-                assert.equal(err.property, 'entity');
-                assert.equal(err.code, 'INVALID_ENTITY');
-            });
+        try {
+            let doc = await sc.validate({ entity: '1' });
+            assert(doc);
+            assert(doc.entity);
+            assert.equal(doc.entity.id, 1);
+            assert.equal(doc.entity.name, 'Amazon');
+    
+            doc = await sc.validate({ entity: 2 });
+            assert(doc);
+            assert(doc.entity);
+            assert.equal(doc.entity.id, 2);
+            assert.equal(doc.entity.name, 'Nile');
+    
+            await sc.validate({ entity: 5 });
+        } catch (errs) {
+            assert(errs);
+            assert.equal(errs.length, 1);
+            
+            const err = errs[0];
+            assert(err);
+            assert.equal(err.property, 'entity');
+            assert.equal(err.code, 'INVALID_ENTITY');
+        }
     });
 });
