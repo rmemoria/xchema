@@ -101,4 +101,40 @@ describe('Object validator', () => {
                 assert(err.code, 'NOT_NULL');
             });
     });
+
+    it('Object returned', () => {
+        const schema = Schema.create({
+            data: Types.object({
+                firstName: Types.string().notNull(),
+                lastName :Types.string().notNull()
+            })
+        });
+
+        return schema.validate({ data: { firstName: 'Bruce', lastName: 'Dickinson' }})
+            .then(res => {
+                assert(res);
+                assert(res.data);
+                assert.equal(res.data.firstName, 'Bruce');
+                assert.equal(res.data.lastName, 'Dickinson');
+            });
+    });
+
+    it('Nested schema', () => {
+        const person = Schema.create({
+            firstName: Types.string().notNull(),
+            lastName :Types.string().notNull()
+        });
+
+        const schema = Schema.create({
+            data: Types.object(person)
+        });
+
+        return schema.validate({ data: { firstName: 'Bruce', lastName: 'Dickinson' }})
+            .then(res => {
+                assert(res);
+                assert(res.data);
+                assert.equal(res.data.firstName, 'Bruce');
+                assert.equal(res.data.lastName, 'Dickinson');
+            });
+    });
 });

@@ -10,6 +10,7 @@ module.exports = class ObjectSchema {
         if (!properties) {
             throw new Error('Schema properties must be provided');
         }
+
         this.schema = {
             properties: properties
         };

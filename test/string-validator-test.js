@@ -90,4 +90,27 @@ describe('String Validator', function() {
                 assert.equal(doc.login, 'ricardo');
             });
     });
+
+    it.only('Match', () => {
+        const sc = Schema.create({
+            login: Types.string().notNull().match(/^[a-zA-Z0-9-_]*$/, 'Login not valid')
+        });
+
+        return sc.validate({ login: 'Valid-Login' })
+            .then(() => {
+                return sc.validate({ login: 'Valid_LOGIN' });
+            })
+            .then(() => {
+                // this one will fail
+                return sc.validate({ login: 'Invalid_login()' })
+                    .catch(errs => {
+                        assert(errs);
+                        assert.equal(errs.length, 1);
+                        const err = errs[0];
+                        assert.equal(err.property, 'login');
+                        assert.equal(err.message, 'Login not valid');
+                        assert.equal(err.code, 'INVALID_VALUE');
+                    });
+            });
+    });
 }); 

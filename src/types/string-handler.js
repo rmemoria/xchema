@@ -1,5 +1,6 @@
 const utils = require('../commons/utils');
 const PropertyBuilder = require('../core/property-builder');
+const errorGen = require('../impl/error-generator');
 
 module.exports.typeName = 'string';
 
@@ -33,6 +34,14 @@ module.exports.validate = (propContext) => {
 
     if (schema.toUpperCase) {
         val = val.toUpperCase();
+    }
+
+    if (schema.match) {
+        const patt = new RegExp(schema.match);
+        if (!patt.test(val)) {
+            const msg = schema.matchMessage ? schema.matchMessage : 'Invalid value';
+            return Promise.reject(propContext.error.as(msg, errorGen.codes.invalidValue));
+        }
     }
 
     return val;
@@ -76,6 +85,15 @@ module.exports.PropertyBuilder = class StringBuilder extends PropertyBuilder {
 
     toLowerCase(val = true) {
         this.schema.toLowerCase = val;
+        return this;
+    }
+
+    match(pattern, msg) {
+        this.schema.match = pattern;
+        // a custom message was set ?
+        if (msg) {
+            this.schema.matchMessage = msg;
+        }
         return this;
     }
 };

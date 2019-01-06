@@ -24,7 +24,12 @@ module.exports = class PropertyBuilder {
     }
 
     label(val) {
-        this.type.label = val;
+        this.schema.label = val;
+        return this;
+    }
+
+    description(val) {
+        this.schema.description = val;
         return this;
     }
 

@@ -2,7 +2,7 @@
   "name": "schema",
   "version": "1.0.0",
   "description": "JS object validator",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "mocha ./test"
   },
