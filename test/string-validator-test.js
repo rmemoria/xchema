@@ -20,8 +20,10 @@ describe('String Validator', function() {
 
         return authSchema.validate(data, authSchema)
             .catch(errors => {
-                assert.equal(errors.length, 1);
-                const err = errors[0];
+                assert(errors);
+                assert.equal(errors.constructor.name, 'ValidationErrors');
+                assert.equal(errors.errors.length, 1);
+                const err = errors.errors[0];
                 assert.equal(err.property, 'username');
                 assert.equal(err.code, 'INVALID_VALUE');
             });
@@ -47,8 +49,9 @@ describe('String Validator', function() {
         return authSchema.validate({ username: 'ThisIsALongStringObject' })
             .catch(errors => {
                 assert(errors);
-                assert.equal(1, errors.length);
-                const err = errors[0];
+                assert.equal(errors.constructor.name, 'ValidationErrors');
+                assert.equal(errors.errors.length, 1);
+                const err = errors.errors[0];
                 assert.equal(err.property, 'username');
                 assert.equal(err.code, 'MAX_SIZE');
             });
@@ -58,8 +61,9 @@ describe('String Validator', function() {
         return authSchema.validate({ username: 'ab' }, authSchema)
             .catch(errors => {
                 assert(errors);
-                assert.equal(1, errors.length);
-                const err = errors[0];
+                assert.equal(errors.constructor.name, 'ValidationErrors');
+                assert.equal(1, errors.errors.length);
+                const err = errors.errors[0];
                 assert.equal(err.property, 'username');
                 assert.equal(err.code, 'MIN_SIZE');
             });
@@ -91,7 +95,7 @@ describe('String Validator', function() {
             });
     });
 
-    it.only('Match', () => {
+    it('Match', () => {
         const sc = Schema.create({
             login: Types.string().notNull().match(/^[a-zA-Z0-9-_]*$/, 'Login not valid')
         });
@@ -105,8 +109,9 @@ describe('String Validator', function() {
                 return sc.validate({ login: 'Invalid_login()' })
                     .catch(errs => {
                         assert(errs);
-                        assert.equal(errs.length, 1);
-                        const err = errs[0];
+                        assert.equal(errs.constructor.name, 'ValidationErrors');
+                        assert.equal(errs.errors.length, 1);
+                        const err = errs.errors[0];
                         assert.equal(err.property, 'login');
                         assert.equal(err.message, 'Login not valid');
                         assert.equal(err.code, 'INVALID_VALUE');

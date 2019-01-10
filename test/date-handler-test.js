@@ -37,8 +37,9 @@ describe('Date validator', () => {
             await sc.validate({ value: 'aa-bb-cc' });
         } catch (errs) {
             assert(errs);
-            assert.equal(errs.length, 1);
-            const err = errs[0];
+            assert.equal(errs.constructor.name, 'ValidationErrors');
+            assert.equal(errs.errors.length, 1);
+            const err = errs.errors[0];
             assert.equal(err.property, 'value');
             assert.equal(err.code, 'INVALID_VALUE');
         }

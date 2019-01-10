@@ -57,8 +57,9 @@ describe('Custom validators', () => {
                 assert.fail('Validation should have failed');
             })
             .catch(errs => {
-                assert.equal(errs.length, 1);
-                const err = errs[0];
+                assert.equal(errs.constructor.name, 'ValidationErrors');
+                assert.equal(errs.errors.length, 1);
+                const err = errs.errors[0];
                 assert.equal(err.property, 'name');
                 assert.equal(err.code, 'INVALID_NAME');
             });
@@ -75,8 +76,9 @@ describe('Custom validators', () => {
 
         return sc.validate({ name: 'vancouver' })
             .catch(errs => {
-                assert.equal(errs.length, 1);
-                const err = errs[0];
+                assert.equal(errs.constructor.name, 'ValidationErrors');
+                assert.equal(errs.errors.length, 1);
+                const err = errs.errors[0];
                 assert.equal(err.property, null);
                 assert.equal(err.message, errmsg);
                 assert.equal(err.code, 'INVALID_NAME');
@@ -93,8 +95,9 @@ describe('Custom validators', () => {
         return sc.validate({ name: null })
             .catch(errs => {
                 assert(errs);
-                assert.equal(errs.length, 1);
-                const err = errs[0];
+                assert.equal(errs.constructor.name, 'ValidationErrors');
+                assert.equal(errs.errors.length, 1);
+                const err = errs.errors[0];
                 assert.equal(err.property, 'name');
                 assert.equal(err.code, 'NOT_NULL');
             });
@@ -114,7 +117,9 @@ describe('Custom validators', () => {
             })
             .catch(errs => {
                 assert(errs);
-                const err = errs[0];
+                assert.equal(errs.constructor.name, 'ValidationErrors');
+                assert.equal(errs.errors.length, 1);
+                const err = errs.errors[0];
                 assert.equal(err.property, 'name');
                 assert.equal(err.message, errmsg);
                 assert.equal(err.code, 'INVALID');
@@ -134,8 +139,9 @@ describe('Custom validators', () => {
         return schema.validate({ value: 20 })
             .catch(errs => {
                 assert(errs);
-                assert.equal(errs.length, 1);
-                const err = errs[0];
+                assert.equal(errs.constructor.name, 'ValidationErrors');
+                assert.equal(errs.errors.length, 1);
+                const err = errs.errors[0];
                 assert.equal(err.property, 'value');
                 assert.equal(err.message, errMsg);
 
@@ -155,8 +161,9 @@ describe('Custom validators', () => {
         return schema.validate({ value: 20 })
             .catch(errs => {
                 assert(errs);
-                assert.equal(errs.length, 1);
-                const err = errs[0];
+                assert.equal(errs.constructor.name, 'ValidationErrors');
+                assert.equal(errs.errors.length, 1);
+                const err = errs.errors[0];
                 assert.equal(err.property, 'value');
                 assert(err.message);
                 assert.equal(err.code, 'NOT_SMALL_NUMBER');
@@ -185,8 +192,9 @@ describe('Custom validators', () => {
         return schema.validate({ value : 20 })
             .catch(errs => {
                 assert(errs);
-                assert(errs.length, 1);
-                const err = errs[0];
+                assert.equal(errs.constructor.name, 'ValidationErrors');
+                assert.equal(errs.errors.length, 1);
+                const err = errs.errors[0];
                 assert.equal(err.property, 'value');
                 assert.equal(err.message, 'Must be lower than 20');
 
@@ -194,7 +202,9 @@ describe('Custom validators', () => {
                 return schema.validate({ value: 15 });
             })
             .catch(errs => {
-                const err = errs[0];
+                assert.equal(errs.constructor.name, 'ValidationErrors');
+                assert.equal(errs.errors.length, 1);
+                const err = errs.errors[0];
                 assert.equal(err.property, 'value');
                 assert.equal(err.message, 'Must be lower than 10');
 
@@ -202,7 +212,9 @@ describe('Custom validators', () => {
                 return schema.validate({ value: 9 });
             })
             .catch(errs => {
-                const err = errs[0];
+                assert.equal(errs.constructor.name, 'ValidationErrors');
+                assert.equal(errs.errors.length, 1);
+                const err = errs.errors[0];
                 assert.equal(err.property, 'value');
                 assert.equal(err.message, 'Must be lower than 8');
 
@@ -228,8 +240,9 @@ describe('Custom validators', () => {
         return schema.validate({ val: 'Hi' })
             .catch(errs => {
                 assert(errs);
-                assert.equal(errs.length, 1);
-                const err = errs[0];
+                assert.equal(errs.constructor.name, 'ValidationErrors');
+                assert.equal(errs.errors.length, 1);
+                const err = errs.errors[0];
                 assert.equal(err.message, 'LOCALIZED MESSAGE');
             });
     });

@@ -23,10 +23,10 @@ describe('Boolean validator', function() {
     });
 
     it('Invalid type', function() {
-        schema1.validate({ value: 'x' })
+        return schema1.validate({ value: 'x' })
             .catch(errors => {
                 assert(errors);
-                assert.equal(errors.length, 1);
+                assert.equal(errors.errors.length, 1);
             });
     });
 

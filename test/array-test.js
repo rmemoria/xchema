@@ -10,19 +10,6 @@ describe('Array validator', () => {
                     name: Types.string()
                 }))
         });
-        //         .
-        //          {
-        //         type: 'array',
-        //         itemSchema: {
-        //             type: 'object',
-        //             properties: {
-        //                 name: {
-        //                     type: 'string'
-        //                 }
-        //             }
-        //         }
-        //     }
-        // });
 
         const vals = {
             values: [
@@ -44,16 +31,6 @@ describe('Array validator', () => {
         const schema = Schema.create({
             values: Types.array().of(Types.string())
         });
-        // const schema = {
-        //     properties: {
-        //         values: {
-        //             type: 'array',
-        //             itemSchema: {
-        //                 type: 'string'
-        //             }
-        //         }
-        //     }
-        // };
 
         const doc = {
             values: [
@@ -78,26 +55,17 @@ describe('Array validator', () => {
         const schema = Schema.create({
             values: Types.array().of(Types.number())
         });
-        // const schema = {
-        //     properties: {
-        //         values: {
-        //             type: 'array',
-        //             itemSchema: {
-        //                 type: 'number'
-        //             }
-        //         }
-        //     }
-        // };
 
         const vals = {
             values: [10, 20, 'abc', 40]
         };
 
         return schema.validate(vals)
-            .catch(errs => {
-                assert(errs);
-                assert.equal(errs.length, 1);
-                const err = errs[0];
+            .catch(error => {
+                assert(error);
+                assert.equal(error.constructor.name, 'ValidationErrors');
+                assert.equal(error.errors.length, 1);
+                const err = error.errors[0];
                 assert.equal(err.property, 'values[2]');
                 assert.equal(err.code, 'INVALID_VALUE');
             });
@@ -109,22 +77,6 @@ describe('Array validator', () => {
                 name: Types.string().notNull()
             }))
         });
-        // const schema = {
-        //     properties: {
-        //         values: {
-        //             type: 'array',
-        //             itemSchema: {
-        //                 type: 'object',
-        //                 properties: {
-        //                     name: {
-        //                         type: 'string',
-        //                         required: true
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // };
 
         const doc = {
             values: [
@@ -136,8 +88,9 @@ describe('Array validator', () => {
         return schema.validate(doc)
             .catch(errs => {
                 assert(errs);
-                assert.equal(errs.length, 1);
-                const err = errs[0];
+                assert.equal(errs.constructor.name, 'ValidationErrors');
+                assert.equal(errs.errors.length, 1);
+                const err = errs.errors[0];
                 assert.equal(err.property, 'values[1].name');
                 assert.equal(err.code, 'NOT_NULL');
             });

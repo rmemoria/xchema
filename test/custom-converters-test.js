@@ -85,11 +85,12 @@ describe('Custom converters', () => {
         });
 
         // test invalid value
-        schema.validate({ value: 10 })
+        return schema.validate({ value: 10 })
             .catch(errs => {
                 assert(errs);
-                assert.equal(errs.length, 1);
-                const err = errs[0];
+                assert.equal(errs.constructor.name, 'ValidationErrors');
+                assert.equal(errs.errors.length, 1);
+                const err = errs.errors[0];
                 assert.equal(err.code, 'INVALID_VALUE');
 
                 return schema.validate({ value: 5 });
@@ -177,9 +178,9 @@ describe('Custom converters', () => {
             await sc.validate({ entity: 5 });
         } catch (errs) {
             assert(errs);
-            assert.equal(errs.length, 1);
-            
-            const err = errs[0];
+            assert.equal(errs.constructor.name, 'ValidationErrors');
+            assert.equal(errs.errors.length, 1);
+            const err = errs.errors[0];
             assert(err);
             assert.equal(err.property, 'entity');
             assert.equal(err.code, 'INVALID_ENTITY');

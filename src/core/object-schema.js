@@ -1,5 +1,6 @@
 const validator = require('../impl/schema-validator');
 const ValidatorBuilder = require('../impl/validator-builder');
+const ValidationErrors = require('./validation-errors');
 
 
 module.exports = class ObjectSchema {
@@ -21,7 +22,14 @@ module.exports = class ObjectSchema {
      * @param {any} obj object to be validated
      */
     validate(obj) {
-        return validator(obj, this.schema, this.session);
+        return validator(obj, this.schema, this.session)
+            .catch(errors => {
+                if (Array.isArray(errors)) {
+                    return Promise.reject(new ValidationErrors(errors));
+                } else {
+                    return Promise.reject(errors);
+                }
+            });
     }
 
     /**
