@@ -1,5 +1,5 @@
 {
-  "name": "schema",
+  "name": "rschema",
   "version": "1.0.0",
   "description": "JS object validator",
   "main": "src/index.js",
