@@ -1,4 +1,4 @@
-# object-validator
+# Schema
 An extensible object validator and converter for NodeJS. Main features are:
 
 * Asyncronous - Promise based;
@@ -11,7 +11,7 @@ An extensible object validator and converter for NodeJS. Main features are:
 
  ```javascript
  // required library
- const Schema = require('object-validator');
+ const Schema = require('schema');
  // shortcut for easier schema declaration
  const Types = Schema.types;
 
@@ -36,7 +36,7 @@ An extensible object validator and converter for NodeJS. Main features are:
         assert.equal(doc.name, 'Ricardo');
         assert.equal(doc.age, 22);
     })
-    .catch(errs => {
+    .catch(err => {
         // catch any validation error
         ...
     });
@@ -61,6 +61,22 @@ const sc = Schema.create({
 ```
 
 It is more verbose, but ideal if you want to, for example, store your schema.
+
+## Async/await
+
+Since `schema` returns a promise, it is totally compatible with async/await instructions:
+
+```javascript
+async function doSomething(data) {
+    ...
+    try {
+        const validatedData = await schema.validate(data);
+    } catch(err) {
+        // error handler here
+    }
+    ...
+}
+```
 
 ## Property types
 
@@ -192,15 +208,19 @@ The reason promise returns a copy (and not the original object) is because the l
 
 ### Validation errors
 
-In case there is a validation error, the promise will be rejected, returning an array of error validation objects.
+In case there is a validation error, the promise will be rejected, returning a `ValidationErrors` object with an `errors` property containing an array of error validation objects.
 
 The standard way to handle errors is:
 
 ```javascript
 mySchema.validate(obj)
     .then(...)
-    .catch(errors => {
+    .catch(error => {
         // here you handle validation errors
+        console.log('Found ' + error.errors.length);
+        error.errors.forEach(err => {
+            console.log(err.property + ': (' err.code + ') ' + err.message);
+        })
     });
 ```
 errors is a list of object in the following format:
@@ -247,8 +267,8 @@ sc.validate({ login: 'Invalid login' })
         // code to run if valid
     })
     .catch(errs => {
-        // errs is an array with validation error objects
-        // [ { property: 'login', message: null, code: 'INVALID_VALUE' }]
+        // errs is an object containing an array with validation error objects
+        // errors: [ { property: 'login', message: null, code: 'INVALID_VALUE' }]
     });
 ```
 
