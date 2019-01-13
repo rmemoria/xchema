@@ -131,7 +131,7 @@ describe('Object validator', () => {
         });
 
         const schema = Schema.create({
-            data: Types.object(person)
+            data: Types.object(person).notNull()
         });
 
         return schema.validate({ data: { firstName: 'Bruce', lastName: 'Dickinson' }})
@@ -140,6 +140,30 @@ describe('Object validator', () => {
                 assert(res.data);
                 assert.equal(res.data.firstName, 'Bruce');
                 assert.equal(res.data.lastName, 'Dickinson');
+                return schema.validate({ data: null });
+            })
+            .then(() => assert.fail('Should not be valid'))
+            .catch(err => {
+                assert(err.errors);
+                assert.equal(err.errors.length, 1);
+                const msg = err.errors[0];
+                assert.equal(msg.property, 'data');
+                assert.equal(msg.code, 'NOT_NULL');
+
+                return schema.validate({ data: {}});
+            })
+            .then(() => assert.fail('Should not be valid'))
+            .catch(err => {
+                assert(err.errors);
+                assert.equal(err.errors.length, 2);
+                const msg = err.errors.find(e => e.property === 'data.firstName');
+                assert(msg);
+                assert.equal(msg.property, 'data.firstName');
+                assert.equal(msg.code, 'NOT_NULL');
+                const msg2 = err.errors.find(e => e.property === 'data.lastName');
+                assert(msg2);
+                assert.equal(msg2.property, 'data.lastName');
+                assert.equal(msg2.code, 'NOT_NULL');
             });
     });
 });
