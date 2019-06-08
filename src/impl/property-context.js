@@ -21,11 +21,11 @@ module.exports = class PropertyContext {
      * Validate the property
      */
     validate() {
+        this.value = getDefaultValue(this);
+
         if (!checkNotNull(this)) {
             return Promise.reject(errorGen.createNotNullMsg(this.property));
         }
-
-        this.value = getDefaultValue(this);
 
         // if there is no value and the property was not declared, so there is nothing to validate
         if (utils.isEmpty(this.value) && this.propertyNotDeclared) {
@@ -67,11 +67,11 @@ module.exports = class PropertyContext {
         const prop = this.property;
 
         return class ErrorWrapper {
-            static as(msg, code) { 
+            static as(msg, code) {
                 return errorGen.createErrorMsg(prop, msg, code);
             }
-            
-            static asCode(code) { 
+
+            static asCode(code) {
                 return errorGen.createErrorMsg(prop, null, code);
             }
 
@@ -120,11 +120,11 @@ function isInOptions(context) {
 
 /**
  * Return the default value, or the own value of the property
- * @param {PropertyContext} propContext 
+ * @param {PropertyContext} propContext the property context
  */
 function getDefaultValue(propContext) {
-    if (!utils.isEmpty(this.value)) {
-        return this.value;
+    if (!utils.isEmpty(propContext.value)) {
+        return propContext.value;
     }
 
     if (propContext.schema.defaultValue) {

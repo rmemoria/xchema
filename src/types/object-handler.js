@@ -24,7 +24,7 @@ module.exports.PropertyBuilder = class ObjectBuilder extends PropertyBuilder {
 
     constructor(typeName, objectSchema) {
         super(typeName);
-        this.schema.properties = objectSchema.constructor.name === 'ObjectSchema' ?
+        this.schema.properties = objectSchema && objectSchema.constructor.name === 'ObjectSchema' ?
             objectSchema.schema.properties :
             objectSchema;
     }

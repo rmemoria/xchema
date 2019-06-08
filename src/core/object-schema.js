@@ -22,6 +22,9 @@ module.exports = class ObjectSchema {
      * @param {any} obj object to be validated
      */
     validate(obj) {
+        if (obj === null || obj === undefined) {
+            return Promise.reject(new ValidationErrors([{ code: 'NULL' }]));
+        }
         return validator(obj, this.schema, this.session)
             .catch(errors => {
                 if (Array.isArray(errors)) {

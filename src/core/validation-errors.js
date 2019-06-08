@@ -4,6 +4,20 @@
  */
 module.exports = class ValidationErrors {
     constructor(errors) {
-        this.errors = errors;
+        this.errors = errors || [];
+    }
+
+    /**
+     * Add a new message to the list of error messages
+     * @param {string} property 
+     * @param {string} message 
+     * @param {string} code 
+     */
+    addError(property, message, code) {
+        this.errors.push({
+            property: property,
+            message: message,
+            code: code
+        });
     }
 };

@@ -1,10 +1,11 @@
 const ObjectSchema = require('./object-schema');
 const ValidatorBuilder = require('../impl/validator-builder');
+const ValidationErrors = require('./validation-errors');
 
 /**
  * Schema session defining basic configurations for schemas
  */
-module.exports = class SchemaSession {
+class SchemaSession {
 
     constructor() {
         // list of registered validators
@@ -30,7 +31,7 @@ module.exports = class SchemaSession {
     }
 
     /**
-     * 
+     * Helper function to create a new object schema
      * @param {object} schema the schema to be created
      */
     create(schema) {
@@ -39,7 +40,7 @@ module.exports = class SchemaSession {
 
     registerHandler(handler) {
         const typeName = handler.typeName;
-    
+
         if (Array.isArray(typeName)) {
             typeName.forEach(tname => registerTypeNameAndHandler(this, tname, handler));
         } else {
@@ -70,7 +71,7 @@ module.exports = class SchemaSession {
 
     /**
      * Register a new custom validator to be used throughout the implementation
-     * @param {string} name 
+     * @param {string} name the name of the validator used in schemas
      * @param {function} handler a function that returns true if the validation was successfull
      */
     registerValidator(name, handler) {
@@ -89,6 +90,14 @@ module.exports = class SchemaSession {
      */
     getValidators() {
         return Object.keys(this.validators);
+    }
+
+    /**
+     * helper function to create an instance of ValidationErrors prototype
+     * @param {Array} errors the list of errors
+     */
+    createValidationErrors(errors) {
+        return new ValidationErrors(errors);
     }
 };
 
@@ -111,3 +120,5 @@ function registerDefaultHandlers(session) {
     session.registerHandler(require('../types/object-handler'));
     session.registerHandler(require('../types/date-handler'));
 }
+
+module.exports = SchemaSession;

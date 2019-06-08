@@ -54,7 +54,7 @@ module.exports = class PropertyBuilder {
 
     /**
      * Add a converter to be called before the validation of the property
-     * @param {Function|String} func 
+     * @param {Function|String} func The function to convert or registered converted string name
      */
     convertBefore(func) {
         validateConverter(func);
@@ -67,7 +67,7 @@ module.exports = class PropertyBuilder {
 
     /**
      * Add a converter to be called after the validation of the property
-     * @param {Function|String} func 
+     * @param {Function|String} func the converter function
      */
     convertAfter(func) {
         validateConverter(func);
@@ -80,7 +80,7 @@ module.exports = class PropertyBuilder {
 
     /**
      * Return the list of possible values for the property
-     * @param {Function|Array} val 
+     * @param {Function|Array} val the array of possible values
      */
     options(val) {
         this.schema.options = val;
@@ -90,6 +90,7 @@ module.exports = class PropertyBuilder {
 
 function validateConverter(conv) {
     if (!Utils.isFunction(conv) && !Utils.isString(conv)) {
-        throw new Error('Invalid value for converter. Expected function or registered converter name');
+        throw new Error('Invalid value for converter. ' +
+            'Expected function or registered converter name');
     }
 }

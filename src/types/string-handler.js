@@ -2,6 +2,10 @@ const utils = require('../commons/utils');
 const PropertyBuilder = require('../core/property-builder');
 const errorGen = require('../impl/error-generator');
 
+// expression for e-mail validation
+/* eslint max-len: 0 */
+const emailPattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
 module.exports.typeName = 'string';
 
 module.exports.validate = (propContext) => {
@@ -40,6 +44,14 @@ module.exports.validate = (propContext) => {
         const patt = new RegExp(schema.match);
         if (!patt.test(val)) {
             const msg = schema.matchMessage ? schema.matchMessage : 'Invalid value';
+            return Promise.reject(propContext.error.as(msg, errorGen.codes.invalidValue));
+        }
+    }
+
+    // test e-mail address
+    if (schema.email) {
+        if (!emailPattern.test(val)) {
+            const msg = schema.matchMessage ? schema.matchMessage : 'Invalid e-mail address';
             return Promise.reject(propContext.error.as(msg, errorGen.codes.invalidValue));
         }
     }
@@ -94,6 +106,14 @@ module.exports.PropertyBuilder = class StringBuilder extends PropertyBuilder {
         if (msg) {
             this.schema.matchMessage = msg;
         }
+        return this;
+    }
+
+    /**
+     * Indicate that string must contain an e-mail address
+     */
+    isEmail() {
+        this.schema.email = true;
         return this;
     }
 };

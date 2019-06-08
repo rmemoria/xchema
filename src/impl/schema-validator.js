@@ -6,13 +6,13 @@ const PropertyBuilder = require('../core/property-builder');
 /**
  * Default function to validate an object against an object schema
  * @param {*} obj
- * @param {*} schema 
+ * @param {*} schema
  */
 module.exports = (obj, schema, session, propertyPrefix) => {
     if (!schema) {
         throw new Error('No schema informed');
     }
-    return validateObject(obj, schema, session, propertyPrefix ? propertyPrefix : ''); 
+    return validateObject(obj, schema, session, propertyPrefix || '');
 };
 
 function validateObject(obj, schema, session, propertyPrefix) {
@@ -28,7 +28,7 @@ function validateObject(obj, schema, session, propertyPrefix) {
 
         const propDeclared = obj.hasOwnProperty(prop);
 
-        const prom = validateProperty(obj, value, propertyPrefix + prop, 
+        const prom = validateProperty(obj, value, propertyPrefix + prop,
             propSchema, schema, !propDeclared, session)
             .then(newValue => {
                 // check if it is a value that must be implemented
@@ -41,7 +41,7 @@ function validateObject(obj, schema, session, propertyPrefix) {
                 if (err instanceof Error) {
                     return Promise.reject(err);
                 }
-            
+
                 if (Array.isArray(err)) {
                     err.forEach(it => errors.push(it));
                 } else {
