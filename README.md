@@ -11,7 +11,7 @@ An extensible object validator and converter for NodeJS. Main features are:
 
  ```javascript
  // required library
- const Schema = require('schema');
+ const Schema = require('xchema');
  // shortcut for easier schema declaration
  const Types = Schema.types;
 
@@ -172,7 +172,7 @@ New schema validators can be created with the global `Schema` object. For exampl
 
 Create a new schema
 ```javascript
-const Schema = require('obj-validator');
+const Schema = require('xchema');
 
 const mySchema = Schema.create({ login: Types.string().notNull() });
 ```
@@ -191,6 +191,14 @@ schema.validate(obj)
     .catch(errs => {
         // called if any validation error was found
     })
+```
+
+Or using await/async in ES6
+```javascript
+async function anyFunction() {
+    ...
+    return await schema.validate(obj)
+}
 ```
 
 ### Valid objects
